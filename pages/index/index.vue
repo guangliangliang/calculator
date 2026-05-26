@@ -61,31 +61,24 @@ function goToIndustryList(industry) {
   display: flex;
   align-items: center;
   padding: 32rpx;
-  border-radius: 28rpx;
-  background: rgba(255, 255, 255, 0.6);
-  backdrop-filter: blur(10rpx);
-  -webkit-backdrop-filter: blur(10rpx);
-  border: 1rpx solid rgba(255, 255, 255, 0.8);
+  border-radius: 24rpx;
+  background: #FFFFFF;
   box-shadow: 
-    8rpx 8rpx 16rpx rgba(190, 200, 215, 0.5),
-    -8rpx -8rpx 16rpx rgba(255, 255, 255, 0.9);
-  transition: all 0.2s;
+    0 2rpx 12rpx rgba(0, 0, 0, 0.06),
+    0 1rpx 3rpx rgba(0, 0, 0, 0.04);
+  transition: all 0.15s;
 }
 
 .industry-card:active {
-  box-shadow: 
-    inset 4rpx 4rpx 8rpx rgba(190, 200, 215, 0.7),
-    inset -4rpx -4rpx 8rpx rgba(255, 255, 255, 0.9);
+  transform: scale(0.98);
+  opacity: 0.95;
 }
 
 .icon-bg {
-  width: 100rpx;
-  height: 100rpx;
-  border-radius: 24rpx;
-  background: rgba(255, 255, 255, 0.8);
-  box-shadow: 
-    4rpx 4rpx 8rpx rgba(190, 200, 215, 0.5),
-    -4rpx -4rpx 8rpx rgba(255, 255, 255, 0.9);
+  width: 90rpx;
+  height: 90rpx;
+  border-radius: 20rpx;
+  background: #F8FAFC;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -93,7 +86,7 @@ function goToIndustryList(industry) {
 }
 
 .icon {
-  font-size: 48rpx;
+  font-size: 44rpx;
 }
 
 .info {

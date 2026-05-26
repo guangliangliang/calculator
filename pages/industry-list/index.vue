@@ -32,21 +32,12 @@ function goToCalculator(calc) {
 
 <template>
   <view class="container">
-    <view class="header-card" v-if="industryInfo">
-      <view class="icon-bg">
-        <text class="header-icon">{{ industryInfo.icon }}</text>
-      </view>
-      <view class="header-content">
-        <text class="header-title">{{ industryInfo.name }}</text>
-        <text class="header-desc">{{ industryInfo.description }}</text>
-      </view>
-    </view>
-
     <view class="calculator-grid">
       <view 
         v-for="calc in calculatorList" 
         :key="calc.id" 
         class="calculator-item card"
+        hover-class="calculator-item-hover"
         @click="goToCalculator(calc)"
       >
         <view class="calc-icon-bg">
@@ -70,34 +61,17 @@ function goToCalculator(calc) {
 .header-card {
   display: flex;
   align-items: center;
-  padding: 36rpx;
-  border-radius: 28rpx;
-  margin-bottom: 36rpx;
-  background: rgba(255, 255, 255, 0.6);
-  backdrop-filter: blur(10rpx);
-  -webkit-backdrop-filter: blur(10rpx);
-  border: 1rpx solid rgba(255, 255, 255, 0.8);
-  box-shadow: 
-    8rpx 8rpx 16rpx rgba(190, 200, 215, 0.5),
-    -8rpx -8rpx 16rpx rgba(255, 255, 255, 0.9);
-}
-
-.icon-bg {
-  width: 100rpx;
-  height: 100rpx;
+  padding: 32rpx;
   border-radius: 24rpx;
-  background: rgba(255, 255, 255, 0.8);
+  margin-bottom: 32rpx;
+  background: #FFFFFF;
   box-shadow: 
-    4rpx 4rpx 8rpx rgba(190, 200, 215, 0.5),
-    -4rpx -4rpx 8rpx rgba(255, 255, 255, 0.9);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-right: 28rpx;
+    6rpx 6rpx 12rpx rgba(200, 210, 225, 0.6),
+    -4rpx -4rpx 10rpx rgba(255, 255, 255, 0.9);
 }
 
 .header-icon {
-  font-size: 48rpx;
+  font-size: 44rpx;
 }
 
 .header-content {
@@ -118,10 +92,27 @@ function goToCalculator(calc) {
   color: #7B8BA3;
 }
 
+.icon-bg {
+  width: 90rpx;
+  height: 90rpx;
+  border-radius: 20rpx;
+  background: #F8FAFC;
+  box-shadow: 
+    3rpx 3rpx 6rpx rgba(200, 210, 225, 0.5),
+    -2rpx -2rpx 5rpx rgba(255, 255, 255, 0.9);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 28rpx;
+}
+
+
+
 .calculator-grid {
   display: flex;
   flex-direction: column;
   gap: 24rpx;
+  padding-bottom: 30rpx;
 }
 
 .calculator-item {
@@ -129,30 +120,29 @@ function goToCalculator(calc) {
   align-items: center;
   padding: 28rpx;
   border-radius: 24rpx;
-  background: rgba(255, 255, 255, 0.6);
-  backdrop-filter: blur(10rpx);
-  -webkit-backdrop-filter: blur(10rpx);
-  border: 1rpx solid rgba(255, 255, 255, 0.8);
+  background: #FFFFFF;
   box-shadow: 
-    6rpx 6rpx 12rpx rgba(190, 200, 215, 0.5),
-    -6rpx -6rpx 12rpx rgba(255, 255, 255, 0.9);
-  transition: all 0.2s;
+    0 2rpx 12rpx rgba(0, 0, 0, 0.06),
+    0 1rpx 3rpx rgba(0, 0, 0, 0.04);
+  transition: all 0.15s;
+  cursor: pointer;
+}
+
+.calculator-item-hover {
+  transform: scale(0.98);
+  opacity: 0.95;
 }
 
 .calculator-item:active {
-  box-shadow: 
-    inset 3rpx 3rpx 6rpx rgba(190, 200, 215, 0.7),
-    inset -3rpx -3rpx 6rpx rgba(255, 255, 255, 0.9);
+  transform: scale(0.98);
+  opacity: 0.95;
 }
 
 .calc-icon-bg {
   width: 80rpx;
   height: 80rpx;
-  border-radius: 20rpx;
-  background: rgba(255, 255, 255, 0.8);
-  box-shadow: 
-    3rpx 3rpx 6rpx rgba(190, 200, 215, 0.5),
-    -3rpx -3rpx 6rpx rgba(255, 255, 255, 0.9);
+  border-radius: 18rpx;
+  background: #F8FAFC;
   display: flex;
   align-items: center;
   justify-content: center;
