@@ -1,21 +1,21 @@
 <script setup>
 import { computed, ref, onMounted } from 'vue'
-import { getCalculatorById } from '../../utils/calculator-config.js'
-import { saveHistory, saveScheduleDetail } from '../../utils/formatter.js'
+import { getCalculatorById } from '@/utils/calculator-config.js'
+import { saveHistory, saveScheduleDetail } from '@/utils/formatter.js'
 import {
   buildCalculationPayload,
   getInputErrorMessage,
   getInitialInputs,
   getSelectLabel,
   validateCalculatorInputs
-} from '../../utils/calculator-form.js'
-import DefaultResultPanel from './components/DefaultResultPanel.vue'
-import MortgageResultPanel from './components/MortgageResultPanel.vue'
-import CarLoanResultPanel from './components/CarLoanResultPanel.vue'
-import CreditCardResultPanel from './components/CreditCardResultPanel.vue'
-import TaxResultPanel from './components/TaxResultPanel.vue'
-import RenovationBudgetResultPanel from './components/RenovationBudgetResultPanel.vue'
-import EoqResultPanel from './components/EoqResultPanel.vue'
+} from '@/utils/calculator-form.js'
+import DefaultResultPanel from '@/pages/calculator/components/DefaultResultPanel.vue'
+import MortgageResultPanel from '@/pages/calculator/components/MortgageResultPanel.vue'
+import CarLoanResultPanel from '@/pages/calculator/components/CarLoanResultPanel.vue'
+import CreditCardResultPanel from '@/pages/calculator/components/CreditCardResultPanel.vue'
+import TaxResultPanel from '@/pages/calculator/components/TaxResultPanel.vue'
+import RenovationBudgetResultPanel from '@/pages/calculator/components/RenovationBudgetResultPanel.vue'
+import EoqResultPanel from '@/pages/calculator/components/EoqResultPanel.vue'
 
 const resultComponentMap = {
   mortgage: MortgageResultPanel,

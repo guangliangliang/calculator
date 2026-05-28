@@ -1,5 +1,5 @@
 <script setup>
-import { formatValue } from '../../../utils/formatter.js'
+import { formatValue } from '@/utils/formatter.js'
 
 defineProps({
   calculator: {

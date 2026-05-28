@@ -1,6 +1,6 @@
-import { cateringCalculators } from './calculators/catering.js'
-import { constructionCalculators } from './calculators/construction.js'
-import { financeCalculators } from './calculators/finance.js'
+import { cateringCalculators } from '@/utils/calculators/catering.js'
+import { constructionCalculators } from '@/utils/calculators/construction.js'
+import { financeCalculators } from '@/utils/calculators/finance.js'
 
 export const industries = [
   {

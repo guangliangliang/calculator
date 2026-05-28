@@ -1,6 +1,6 @@
 <script setup>
 import { ref, onMounted } from 'vue'
-import { getCalculatorsByIndustry, industries } from '../../utils/calculator-config.js'
+import { getCalculatorsByIndustry, industries } from '@/utils/calculator-config.js'
 
 const industryInfo = ref(null)
 const calculatorList = ref([])

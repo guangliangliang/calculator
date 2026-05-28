@@ -1,5 +1,5 @@
 <script setup>
-import { formatCurrency } from '../../../utils/formatter.js'
+import { formatCurrency } from '@/utils/formatter.js'
 
 defineProps({
   results: {

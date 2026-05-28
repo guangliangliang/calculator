@@ -1,5 +1,5 @@
 <script setup>
-import { industries } from '../../utils/calculator-config.js'
+import { industries } from '@/utils/calculator-config.js'
 
 function goToIndustryList(industry) {
   uni.navigateTo({

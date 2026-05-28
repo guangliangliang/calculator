@@ -1,7 +1,7 @@
 <script setup>
 import { computed, ref, onMounted } from 'vue'
-import { getScheduleDetail, formatCurrency } from '../../utils/formatter.js'
-import { buildScheduleFileName, buildScheduleXlsx, downloadXlsxFile } from '../../utils/xlsx-export.js'
+import { getScheduleDetail, formatCurrency } from '@/utils/formatter.js'
+import { buildScheduleFileName, buildScheduleXlsx, downloadXlsxFile } from '@/utils/xlsx-export.js'
 
 const detail = ref(null)
 const exporting = ref(false)

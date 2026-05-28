@@ -7,7 +7,7 @@
 </template>
 
 <style>
-@import url('./static/css/common.css');
+@import url('@/static/css/common.css');
 
 page {
   background-color: #F8FAFC;

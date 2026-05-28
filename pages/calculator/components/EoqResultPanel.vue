@@ -1,5 +1,5 @@
 <script setup>
-import { formatNumber } from '../../../utils/formatter.js'
+import { formatNumber } from '@/utils/formatter.js'
 
 defineProps({
   results: {
