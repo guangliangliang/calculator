@@ -50,6 +50,30 @@ function buildInstallmentSchedule(amount, periods, monthlyPrincipal, monthlyFee)
   })
 }
 
+function getEqualPaymentMonthlyPayment(principal, months, monthlyRate) {
+  if (months <= 0) return null
+  if (monthlyRate === 0) return principal / months
+
+  return principal * monthlyRate * Math.pow(1 + monthlyRate, months) /
+    (Math.pow(1 + monthlyRate, months) - 1)
+}
+
+function getRemainingPrincipalAfterPayments(principal, monthlyRate, monthlyPayment, paidMonths) {
+  if (paidMonths <= 0) return principal
+  if (monthlyRate === 0) return Math.max(0, principal - monthlyPayment * paidMonths)
+
+  return principal * Math.pow(1 + monthlyRate, paidMonths) -
+    monthlyPayment * ((Math.pow(1 + monthlyRate, paidMonths) - 1) / monthlyRate)
+}
+
+function getMonthsToPayoff(principal, monthlyPayment, monthlyRate) {
+  if (principal <= 0) return 0
+  if (monthlyRate === 0) return principal / monthlyPayment
+  if (monthlyPayment <= principal * monthlyRate) return null
+
+  return Math.log(monthlyPayment / (monthlyPayment - principal * monthlyRate)) / Math.log(1 + monthlyRate)
+}
+
 export const financeCalculators = [
   {
     id: 'mortgage',
@@ -345,6 +369,77 @@ export const financeCalculators = [
       { key: 'taxable', label: '应纳税所得额', format: 'currency', unit: '元' },
       { key: 'tax', label: '应缴个税', format: 'currency', unit: '元' },
       { key: 'afterTax', label: '税后收入', format: 'currency', unit: '元' }
+    ]
+  },
+  {
+    id: 'early-repayment',
+    name: '提前还贷计算器',
+    industry: 'finance',
+    icon: '💸',
+    description: '按等额本息估算提前还款后的剩余期限和节省利息',
+    inputs: [
+      { key: 'amount', label: '贷款金额', type: 'number', unit: '万元', placeholder: '请输入贷款金额', min: 0.01 },
+      { key: 'years', label: '贷款年限', type: 'number', unit: '年', placeholder: '请输入贷款年限', min: 0.1 },
+      { key: 'rate', label: '年利率', type: 'number', unit: '%', placeholder: '例如 3.6', min: 0 },
+      { key: 'elapsedMonths', label: '已还期数', type: 'number', unit: '期', placeholder: '请输入已还期数', min: 0 },
+      { key: 'prepaymentAmount', label: '提前还款金额', type: 'number', unit: '元', placeholder: '请输入提前还款金额', min: 0.01 }
+    ],
+    calculate: (data) => {
+      const { amount, years, rate, elapsedMonths, prepaymentAmount } = data
+      if (amount == null || years == null || rate == null || elapsedMonths == null || prepaymentAmount == null) return null
+
+      const principal = amount * 10000
+      const months = Math.round(years * 12)
+      const paidMonths = Math.floor(elapsedMonths)
+      const monthlyRate = rate / 100 / 12
+      if (months <= 0 || paidMonths < 0 || paidMonths >= months) return null
+
+      const monthlyPayment = getEqualPaymentMonthlyPayment(principal, months, monthlyRate)
+      if (monthlyPayment == null) return null
+
+      const remainingPrincipal = Math.max(0, getRemainingPrincipalAfterPayments(principal, monthlyRate, monthlyPayment, paidMonths))
+      if (prepaymentAmount >= remainingPrincipal) {
+        const interestPaid = monthlyPayment * paidMonths - (principal - remainingPrincipal)
+        const originalRemainingInterest = monthlyPayment * (months - paidMonths) - remainingPrincipal
+
+        return {
+          monthlyPayment,
+          remainingPrincipal,
+          actualPrepaymentAmount: remainingPrincipal,
+          newRemainingMonths: 0,
+          termReducedMonths: months - paidMonths,
+          interestSaved: originalRemainingInterest,
+          interestPaid
+        }
+      }
+
+      const principalAfterPrepayment = remainingPrincipal - prepaymentAmount
+      const newRemainingMonths = getMonthsToPayoff(principalAfterPrepayment, monthlyPayment, monthlyRate)
+      if (newRemainingMonths == null) return null
+
+      const originalRemainingMonths = months - paidMonths
+      const originalRemainingInterest = monthlyPayment * originalRemainingMonths - remainingPrincipal
+      const newRemainingInterest = monthlyPayment * newRemainingMonths - principalAfterPrepayment
+      const termReducedMonths = originalRemainingMonths - newRemainingMonths
+      const interestSaved = originalRemainingInterest - newRemainingInterest
+      const interestPaid = monthlyPayment * paidMonths - (principal - remainingPrincipal)
+
+      return {
+        monthlyPayment,
+        remainingPrincipal,
+        actualPrepaymentAmount: prepaymentAmount,
+        newRemainingMonths,
+        termReducedMonths,
+        interestSaved,
+        interestPaid
+      }
+    },
+    outputs: [
+      { key: 'monthlyPayment', label: '原月供', format: 'currency', unit: '元' },
+      { key: 'remainingPrincipal', label: '提前还款前剩余本金', format: 'currency', unit: '元' },
+      { key: 'newRemainingMonths', label: '剩余还款期数', format: 'number', unit: '期', precision: 1 },
+      { key: 'termReducedMonths', label: '缩短期数', format: 'number', unit: '期', precision: 1 },
+      { key: 'interestSaved', label: '节省利息', format: 'currency', unit: '元' }
     ]
   }
 ]

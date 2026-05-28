@@ -226,5 +226,94 @@ export const constructionCalculators = [
       { key: 'pricePerSqm', label: '每平米造价', format: 'currency', unit: '元' },
       { key: 'total', label: '总预算', format: 'currency', unit: '元' }
     ]
+  },
+  {
+    id: 'cement-sand-brick',
+    name: '水泥沙子砖用量计算器',
+    industry: 'construction',
+    icon: '🧱',
+    description: '按墙体尺寸估算砖块、砂浆、水泥和沙子用量',
+    inputs: [
+      { key: 'wallLength', label: '墙体长度', type: 'number', unit: 'm', placeholder: '请输入墙体长度', min: 0.01 },
+      { key: 'wallHeight', label: '墙体高度', type: 'number', unit: 'm', placeholder: '请输入墙体高度', min: 0.01 },
+      { key: 'wallThickness', label: '墙体厚度', type: 'number', unit: 'mm', placeholder: '默认 120', default: 120, min: 1, required: false },
+      { key: 'brickLength', label: '砖长', type: 'number', unit: 'mm', placeholder: '默认 240', default: 240, min: 1, required: false },
+      { key: 'brickWidth', label: '砖宽', type: 'number', unit: 'mm', placeholder: '默认 115', default: 115, min: 1, required: false },
+      { key: 'brickHeight', label: '砖高', type: 'number', unit: 'mm', placeholder: '默认 53', default: 53, min: 1, required: false },
+      { key: 'mortarThickness', label: '灰缝厚度', type: 'number', unit: 'mm', placeholder: '默认 10', default: 10, min: 0, required: false },
+      { key: 'lossRate', label: '损耗率', type: 'number', unit: '%', placeholder: '默认 5', default: 5, min: 0, required: false }
+    ],
+    calculate: (data) => {
+      const {
+        wallLength,
+        wallHeight,
+        wallThickness = 120,
+        brickLength = 240,
+        brickWidth = 115,
+        brickHeight = 53,
+        mortarThickness = 10,
+        lossRate = 5
+      } = data
+      if (wallLength == null || wallHeight == null) return null
+
+      const wallVolume = wallLength * wallHeight * (wallThickness / 1000)
+      const moduleVolume = ((brickLength + mortarThickness) / 1000) * ((brickWidth + mortarThickness) / 1000) * ((brickHeight + mortarThickness) / 1000)
+      const brickVolume = (brickLength / 1000) * (brickWidth / 1000) * (brickHeight / 1000)
+      if (moduleVolume <= 0 || brickVolume <= 0) return null
+
+      const netBrickCount = wallVolume / moduleVolume
+      const brickCount = Math.ceil(netBrickCount * (1 + lossRate / 100))
+      const mortarVolume = Math.max(0, wallVolume - netBrickCount * brickVolume)
+      const dryMortarVolume = mortarVolume * 1.3
+      const cementVolume = dryMortarVolume / 5
+      const sandVolume = dryMortarVolume * 4 / 5
+      const cementWeight = cementVolume * 1440
+
+      return { brickCount, mortarVolume, cementWeight, sandVolume }
+    },
+    outputs: [
+      { key: 'brickCount', label: '砖块数量', format: 'number', unit: '块' },
+      { key: 'mortarVolume', label: '砂浆体积', format: 'number', unit: 'm³', precision: 3 },
+      { key: 'cementWeight', label: '水泥重量', format: 'number', unit: 'kg', precision: 1 },
+      { key: 'sandVolume', label: '沙子体积', format: 'number', unit: 'm³', precision: 3 }
+    ]
+  },
+  {
+    id: 'wire-conduit',
+    name: '电线线管用量计算器',
+    industry: 'construction',
+    icon: '🔌',
+    description: '根据点位数量和平均布线长度估算电线与线管',
+    inputs: [
+      { key: 'socketCount', label: '插座点位', type: 'number', unit: '个', placeholder: '请输入插座点位', min: 0 },
+      { key: 'switchCount', label: '开关点位', type: 'number', unit: '个', placeholder: '请输入开关点位', min: 0 },
+      { key: 'lampCount', label: '灯位', type: 'number', unit: '个', placeholder: '请输入灯位', min: 0 },
+      { key: 'avgLengthPerPoint', label: '单点平均布线长度', type: 'number', unit: 'm', placeholder: '例如 8', min: 0.1 },
+      { key: 'wireRuns', label: '电线回路数', type: 'number', unit: '根', placeholder: '默认 3', default: 3, min: 1, required: false },
+      { key: 'lossRate', label: '损耗率', type: 'number', unit: '%', placeholder: '默认 10', default: 10, min: 0, required: false }
+    ],
+    calculate: (data) => {
+      const {
+        socketCount,
+        switchCount,
+        lampCount,
+        avgLengthPerPoint,
+        wireRuns = 3,
+        lossRate = 10
+      } = data
+      if (socketCount == null || switchCount == null || lampCount == null || avgLengthPerPoint == null) return null
+
+      const pointCount = socketCount + switchCount + lampCount
+      const baseLength = pointCount * avgLengthPerPoint
+      const conduitLength = baseLength * (1 + lossRate / 100)
+      const wireLength = conduitLength * wireRuns
+
+      return { pointCount, conduitLength, wireLength }
+    },
+    outputs: [
+      { key: 'pointCount', label: '总点位数', format: 'number', unit: '个' },
+      { key: 'conduitLength', label: '线管长度', format: 'number', unit: 'm', precision: 1 },
+      { key: 'wireLength', label: '电线长度', format: 'number', unit: 'm', precision: 1 }
+    ]
   }
 ]

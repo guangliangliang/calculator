@@ -124,6 +124,76 @@ function testRenovationBudget() {
   assert(result.total === 200000, 'Renovation budget select mapping mismatch')
 }
 
+function testBreakEvenPoint() {
+  const calculator = calculatorConfigs.find(item => item.id === 'break-even-point')
+  const result = calculator.calculate({ fixedCost: 30000, grossMarginRate: 60 })
+  assert(approxEqual(result.breakEvenRevenue, 50000, 0.01), 'Break-even revenue mismatch')
+}
+
+function testTableTurnover() {
+  const calculator = calculatorConfigs.find(item => item.id === 'table-turnover')
+  const result = calculator.calculate({
+    tableCount: 10,
+    avgTurnoversPerTable: 3,
+    avgGuestsPerTable: 4,
+    avgSpendPerCustomer: 50
+  })
+  assert(result.dailyCustomers === 120, 'Table turnover customer count mismatch')
+  assert(result.estimatedRevenue === 6000, 'Table turnover revenue mismatch')
+}
+
+function testDeliveryNetIncome() {
+  const calculator = calculatorConfigs.find(item => item.id === 'delivery-net-income')
+  const result = calculator.calculate({
+    orderAmount: 100,
+    platformRate: 18,
+    deliveryFee: 6,
+    activityCost: 5,
+    subsidy: 3
+  })
+  assert(approxEqual(result.platformCommission, 18, 0.01), 'Delivery commission mismatch')
+  assert(approxEqual(result.netIncome, 74, 0.01), 'Delivery net income mismatch')
+}
+
+function testStorePayback() {
+  const calculator = calculatorConfigs.find(item => item.id === 'store-payback')
+  const result = calculator.calculate({ initialInvestment: 240000, monthlyNetProfit: 20000 })
+  assert(approxEqual(result.paybackMonths, 12, 0.01), 'Store payback month mismatch')
+}
+
+function testCementSandBrick() {
+  const calculator = calculatorConfigs.find(item => item.id === 'cement-sand-brick')
+  const result = calculator.calculate({ wallLength: 5, wallHeight: 3 })
+  assert(result.brickCount > 0, 'Brick count should be positive')
+  assert(result.cementWeight > 0, 'Cement weight should be positive')
+}
+
+function testWireConduit() {
+  const calculator = calculatorConfigs.find(item => item.id === 'wire-conduit')
+  const result = calculator.calculate({
+    socketCount: 10,
+    switchCount: 8,
+    lampCount: 6,
+    avgLengthPerPoint: 8
+  })
+  assert(result.pointCount === 24, 'Wire conduit point count mismatch')
+  assert(approxEqual(result.conduitLength, 211.2, 0.01), 'Conduit length mismatch')
+}
+
+function testEarlyRepayment() {
+  const calculator = calculatorConfigs.find(item => item.id === 'early-repayment')
+  const result = calculator.calculate({
+    amount: 100,
+    years: 30,
+    rate: 3.6,
+    elapsedMonths: 24,
+    prepaymentAmount: 100000
+  })
+  assert(result.remainingPrincipal > result.actualPrepaymentAmount, 'Remaining principal should exceed prepayment amount')
+  assert(result.interestSaved > 0, 'Early repayment should save interest')
+  assert(result.termReducedMonths > 0, 'Early repayment should reduce term')
+}
+
 function run() {
   testUniqueIds()
   testConfigShape()
@@ -138,6 +208,13 @@ function run() {
   testRenovationBudget()
   testRenovationBudgetMetadata()
   testEoqMetadata()
+  testBreakEvenPoint()
+  testTableTurnover()
+  testDeliveryNetIncome()
+  testStorePayback()
+  testCementSandBrick()
+  testWireConduit()
+  testEarlyRepayment()
   console.log(`Calculator verification passed: ${calculatorConfigs.length} calculators checked`)
 }
 

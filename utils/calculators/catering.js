@@ -211,5 +211,130 @@ export const cateringCalculators = [
       { key: 'eoq', label: '经济订货批量', format: 'number', unit: '件' },
       { key: 'orderTimes', label: '年订货次数', format: 'number', unit: '次', precision: 1 }
     ]
+  },
+  {
+    id: 'break-even-point',
+    name: '盈亏平衡点计算器',
+    industry: 'catering',
+    icon: '⚖️',
+    description: '根据固定成本和毛利率反推保本营业额',
+    inputs: [
+      { key: 'fixedCost', label: '固定成本', type: 'number', unit: '元', placeholder: '请输入固定成本', min: 0 },
+      { key: 'grossMarginRate', label: '毛利率', type: 'number', unit: '%', placeholder: '例如 60', min: 0.01, max: 99.99 }
+    ],
+    calculate: (data) => {
+      const { fixedCost, grossMarginRate } = data
+      if (fixedCost == null || grossMarginRate == null || grossMarginRate >= 100) return null
+
+      const breakEvenRevenue = fixedCost / (grossMarginRate / 100)
+      const grossProfitNeeded = breakEvenRevenue - fixedCost
+
+      return { breakEvenRevenue, grossProfitNeeded }
+    },
+    outputs: [
+      { key: 'breakEvenRevenue', label: '保本营业额', format: 'currency', unit: '元' },
+      { key: 'grossProfitNeeded', label: '所需毛利额', format: 'currency', unit: '元' }
+    ]
+  },
+  {
+    id: 'table-turnover',
+    name: '翻台率计算器',
+    industry: 'catering',
+    icon: '🍽️',
+    description: '估算翻台次数、接待人数和日营业额',
+    inputs: [
+      { key: 'tableCount', label: '餐桌数量', type: 'number', unit: '桌', placeholder: '请输入餐桌数量', min: 1 },
+      { key: 'avgTurnoversPerTable', label: '单桌日均翻台次数', type: 'number', unit: '次', placeholder: '例如 3.5', min: 0.01 },
+      { key: 'avgGuestsPerTable', label: '平均每桌就餐人数', type: 'number', unit: '人', placeholder: '例如 3', min: 0.1 },
+      { key: 'avgSpendPerCustomer', label: '人均消费', type: 'number', unit: '元', placeholder: '请输入人均消费', min: 0.01 }
+    ],
+    calculate: (data) => {
+      const { tableCount, avgTurnoversPerTable, avgGuestsPerTable, avgSpendPerCustomer } = data
+      if (tableCount == null || avgTurnoversPerTable == null || avgGuestsPerTable == null || avgSpendPerCustomer == null) return null
+
+      const dailyTurnovers = tableCount * avgTurnoversPerTable
+      const dailyCustomers = dailyTurnovers * avgGuestsPerTable
+      const estimatedRevenue = dailyCustomers * avgSpendPerCustomer
+
+      return { dailyTurnovers, dailyCustomers, estimatedRevenue }
+    },
+    outputs: [
+      { key: 'dailyTurnovers', label: '总翻台次数', format: 'number', unit: '次', precision: 1 },
+      { key: 'dailyCustomers', label: '预计接待人数', format: 'number', unit: '人', precision: 0 },
+      { key: 'estimatedRevenue', label: '预计日营业额', format: 'currency', unit: '元' }
+    ]
+  },
+  {
+    id: 'average-order-value',
+    name: '客单价计算器',
+    industry: 'catering',
+    icon: '🧾',
+    description: '根据营业额和订单量计算客单价',
+    inputs: [
+      { key: 'revenue', label: '营业额', type: 'number', unit: '元', placeholder: '请输入营业额', min: 0 },
+      { key: 'orderCount', label: '订单数', type: 'number', unit: '单', placeholder: '请输入订单数', min: 1 }
+    ],
+    calculate: (data) => {
+      const { revenue, orderCount } = data
+      if (revenue == null || orderCount == null || orderCount <= 0) return null
+
+      return { averageOrderValue: revenue / orderCount }
+    },
+    outputs: [
+      { key: 'averageOrderValue', label: '客单价', format: 'currency', unit: '元' }
+    ]
+  },
+  {
+    id: 'delivery-net-income',
+    name: '外卖到手收入计算器',
+    industry: 'catering',
+    icon: '🛵',
+    description: '扣除平台佣金、配送费和活动成本后估算净收入',
+    inputs: [
+      { key: 'orderAmount', label: '订单金额', type: 'number', unit: '元', placeholder: '请输入订单金额', min: 0.01 },
+      { key: 'platformRate', label: '平台扣点', type: 'number', unit: '%', placeholder: '例如 18', min: 0, max: 100 },
+      { key: 'deliveryFee', label: '配送费', type: 'number', unit: '元', placeholder: '选填', min: 0, required: false },
+      { key: 'activityCost', label: '活动补贴成本', type: 'number', unit: '元', placeholder: '选填', min: 0, required: false },
+      { key: 'subsidy', label: '平台补贴', type: 'number', unit: '元', placeholder: '选填', min: 0, required: false }
+    ],
+    calculate: (data) => {
+      const { orderAmount, platformRate, deliveryFee = 0, activityCost = 0, subsidy = 0 } = data
+      if (orderAmount == null || platformRate == null) return null
+
+      const platformCommission = orderAmount * (platformRate / 100)
+      const netIncome = orderAmount - platformCommission - deliveryFee - activityCost + subsidy
+      const netRate = orderAmount === 0 ? null : (netIncome / orderAmount) * 100
+
+      return { platformCommission, netIncome, netRate }
+    },
+    outputs: [
+      { key: 'platformCommission', label: '平台佣金', format: 'currency', unit: '元' },
+      { key: 'netIncome', label: '到手收入', format: 'currency', unit: '元' },
+      { key: 'netRate', label: '到手率', format: 'percent', unit: '%' }
+    ]
+  },
+  {
+    id: 'store-payback',
+    name: '门店回本周期计算器',
+    industry: 'catering',
+    icon: '🏪',
+    description: '根据总投资和月净利润估算回本周期',
+    inputs: [
+      { key: 'initialInvestment', label: '总投资', type: 'number', unit: '元', placeholder: '请输入总投资', min: 0.01 },
+      { key: 'monthlyNetProfit', label: '月净利润', type: 'number', unit: '元', placeholder: '请输入月净利润', min: 0.01 }
+    ],
+    calculate: (data) => {
+      const { initialInvestment, monthlyNetProfit } = data
+      if (initialInvestment == null || monthlyNetProfit == null || monthlyNetProfit <= 0) return null
+
+      const paybackMonths = initialInvestment / monthlyNetProfit
+      const paybackYears = paybackMonths / 12
+
+      return { paybackMonths, paybackYears }
+    },
+    outputs: [
+      { key: 'paybackMonths', label: '回本周期', format: 'number', unit: '个月', precision: 1 },
+      { key: 'paybackYears', label: '折合年数', format: 'number', unit: '年', precision: 2 }
+    ]
   }
 ]
