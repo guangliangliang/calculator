@@ -11,17 +11,18 @@ function goToIndustryList(industry) {
 <template>
   <view class="container">
     <view class="header">
-      <text class="subtitle">选择您需要的行业分类</text>
+      <text class="title">行业计算工具箱</text>
+      <text class="subtitle">选择你需要的行业分类，快速进入对应计算器</text>
     </view>
 
     <view class="industry-list">
-      <view 
-        v-for="item in industries" 
-        :key="item.id" 
+      <view
+        v-for="item in industries"
+        :key="item.id"
         class="industry-card"
         @click="goToIndustryList(item)"
       >
-        <view class="icon-bg">
+        <view class="icon-bg" :style="{ background: item.gradient }">
           <text class="icon">{{ item.icon }}</text>
         </view>
         <view class="info">
@@ -40,15 +41,22 @@ function goToIndustryList(industry) {
 }
 
 .header {
-  margin-bottom: 50rpx;
-  text-align: center;
-  margin-top: 20rpx;
+  margin: 24rpx 0 50rpx;
+}
+
+.title {
+  display: block;
+  margin-bottom: 12rpx;
+  font-size: 46rpx;
+  font-weight: 700;
+  color: #1E293B;
 }
 
 .subtitle {
   display: block;
   font-size: 28rpx;
-  color: #7B8BA3;
+  line-height: 1.6;
+  color: #64748B;
 }
 
 .industry-list {
@@ -63,10 +71,9 @@ function goToIndustryList(industry) {
   padding: 32rpx;
   border-radius: 24rpx;
   background: #FFFFFF;
-  box-shadow: 
+  box-shadow:
     0 2rpx 12rpx rgba(0, 0, 0, 0.06),
     0 1rpx 3rpx rgba(0, 0, 0, 0.04);
-  transition: all 0.15s;
 }
 
 .industry-card:active {
@@ -78,7 +85,6 @@ function goToIndustryList(industry) {
   width: 90rpx;
   height: 90rpx;
   border-radius: 20rpx;
-  background: #F8FAFC;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -86,7 +92,7 @@ function goToIndustryList(industry) {
 }
 
 .icon {
-  font-size: 44rpx;
+  font-size: 42rpx;
 }
 
 .info {
@@ -98,13 +104,14 @@ function goToIndustryList(industry) {
 .name {
   font-size: 32rpx;
   font-weight: 600;
-  color: #2D3748;
+  color: #1E293B;
   margin-bottom: 8rpx;
 }
 
 .desc {
   font-size: 24rpx;
-  color: #7B8BA3;
+  line-height: 1.5;
+  color: #64748B;
 }
 
 .arrow {

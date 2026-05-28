@@ -4,24 +4,26 @@ export const financeCalculators = [
     name: '房贷计算器',
     industry: 'finance',
     icon: '🏠',
-    description: '等额本息/等额本金计算',
+    description: '等额本息月供、总还款和总利息计算',
     inputs: [
-      { key: 'amount', label: '贷款金额', type: 'number', unit: '万元', placeholder: '请输入贷款金额' },
-      { key: 'years', label: '贷款年限', type: 'number', unit: '年', placeholder: '请输入贷款年限' },
-      { key: 'rate', label: '年利率', type: 'number', unit: '%', placeholder: '如4.5' }
+      { key: 'amount', label: '贷款金额', type: 'number', unit: '万元', placeholder: '请输入贷款金额', min: 0 },
+      { key: 'years', label: '贷款年限', type: 'number', unit: '年', placeholder: '请输入贷款年限', min: 0.1 },
+      { key: 'rate', label: '年利率', type: 'number', unit: '%', placeholder: '例如 3.5', min: 0 }
     ],
     calculate: (data) => {
       const { amount, years, rate } = data
-      if (!amount || !years || !rate) return null
+      if (amount == null || years == null || rate == null) return null
+
       const principal = amount * 10000
       const months = years * 12
       const monthlyRate = rate / 100 / 12
-      
-      const monthlyPayment = principal * monthlyRate * Math.pow(1 + monthlyRate, months) / 
-                            (Math.pow(1 + monthlyRate, months) - 1)
+      const monthlyPayment = monthlyRate === 0
+        ? principal / months
+        : principal * monthlyRate * Math.pow(1 + monthlyRate, months) /
+          (Math.pow(1 + monthlyRate, months) - 1)
       const totalPayment = monthlyPayment * months
       const totalInterest = totalPayment - principal
-      
+
       return { monthlyPayment, totalPayment, totalInterest }
     },
     outputs: [
@@ -35,28 +37,35 @@ export const financeCalculators = [
     name: '车贷计算器',
     industry: 'finance',
     icon: '🚗',
-    description: '汽车贷款计算',
+    description: '首付、贷款额、月供和购车总成本计算',
     inputs: [
-      { key: 'carPrice', label: '车价', type: 'number', unit: '万元', placeholder: '请输入车价' },
-      { key: 'downPaymentRatio', label: '首付比例', type: 'number', unit: '%', placeholder: '如30' },
-      { key: 'years', label: '贷款年限', type: 'number', unit: '年', placeholder: '请输入贷款年限' },
-      { key: 'rate', label: '年利率', type: 'number', unit: '%', placeholder: '如4.5' }
+      { key: 'carPrice', label: '车价', type: 'number', unit: '万元', placeholder: '请输入车价', min: 0 },
+      { key: 'downPaymentRatio', label: '首付比例', type: 'number', unit: '%', placeholder: '例如 30', min: 0, max: 100 },
+      { key: 'years', label: '贷款年限', type: 'number', unit: '年', placeholder: '请输入贷款年限', min: 0.1 },
+      { key: 'rate', label: '年利率', type: 'number', unit: '%', placeholder: '例如 4.5', min: 0 }
     ],
     calculate: (data) => {
       const { carPrice, downPaymentRatio, years, rate } = data
-      if (!carPrice || !downPaymentRatio || !years || !rate) return null
+      if (carPrice == null || downPaymentRatio == null || years == null || rate == null) return null
+
       const downPayment = carPrice * (downPaymentRatio / 100)
       const loanAmount = carPrice - downPayment
       const principal = loanAmount * 10000
       const months = years * 12
       const monthlyRate = rate / 100 / 12
-      
-      const monthlyPayment = principal * monthlyRate * Math.pow(1 + monthlyRate, months) / 
-                            (Math.pow(1 + monthlyRate, months) - 1)
+      const monthlyPayment = monthlyRate === 0
+        ? principal / months
+        : principal * monthlyRate * Math.pow(1 + monthlyRate, months) /
+          (Math.pow(1 + monthlyRate, months) - 1)
       const totalPayment = monthlyPayment * months
       const totalCost = downPayment * 10000 + totalPayment
-      
-      return { downPayment: downPayment * 10000, loanAmount: loanAmount * 10000, monthlyPayment, totalCost }
+
+      return {
+        downPayment: downPayment * 10000,
+        loanAmount: loanAmount * 10000,
+        monthlyPayment,
+        totalCost
+      }
     },
     outputs: [
       { key: 'downPayment', label: '首付', format: 'currency', unit: '元' },
@@ -70,18 +79,20 @@ export const financeCalculators = [
     name: '存款利息计算器',
     industry: 'finance',
     icon: '🏦',
-    description: '活期/定期存款利息计算',
+    description: '按单利估算定期或短期存款利息',
     inputs: [
-      { key: 'principal', label: '本金', type: 'number', unit: '元', placeholder: '请输入本金' },
-      { key: 'months', label: '存期', type: 'number', unit: '月', placeholder: '请输入存期' },
-      { key: 'rate', label: '年利率', type: 'number', unit: '%', placeholder: '如2.1' }
+      { key: 'principal', label: '本金', type: 'number', unit: '元', placeholder: '请输入本金', min: 0 },
+      { key: 'months', label: '存期', type: 'number', unit: '月', placeholder: '请输入存期', min: 0.1 },
+      { key: 'rate', label: '年利率', type: 'number', unit: '%', placeholder: '例如 2.1', min: 0 }
     ],
     calculate: (data) => {
       const { principal, months, rate } = data
-      if (!principal || !months || !rate) return null
+      if (principal == null || months == null || rate == null) return null
+
       const years = months / 12
       const interest = principal * (rate / 100) * years
       const total = principal + interest
+
       return { interest, total }
     },
     outputs: [
@@ -94,20 +105,22 @@ export const financeCalculators = [
     name: '信用卡分期计算器',
     industry: 'finance',
     icon: '💳',
-    description: '分期手续费计算',
+    description: '按每期手续费率估算分期成本',
     inputs: [
-      { key: 'amount', label: '分期金额', type: 'number', unit: '元', placeholder: '请输入分期金额' },
-      { key: 'periods', label: '分期期数', type: 'number', unit: '期', placeholder: '如12' },
-      { key: 'feeRate', label: '每期手续费率', type: 'number', unit: '%', placeholder: '如0.6' }
+      { key: 'amount', label: '分期金额', type: 'number', unit: '元', placeholder: '请输入分期金额', min: 0 },
+      { key: 'periods', label: '分期期数', type: 'number', unit: '期', placeholder: '例如 12', min: 1 },
+      { key: 'feeRate', label: '每期手续费率', type: 'number', unit: '%', placeholder: '例如 0.6', min: 0 }
     ],
     calculate: (data) => {
       const { amount, periods, feeRate } = data
-      if (!amount || !periods || !feeRate) return null
+      if (amount == null || periods == null || feeRate == null) return null
+
       const monthlyPrincipal = amount / periods
       const monthlyFee = amount * (feeRate / 100)
       const monthlyPayment = monthlyPrincipal + monthlyFee
       const totalFee = monthlyFee * periods
       const totalPayment = amount + totalFee
+
       return { monthlyPayment, totalFee, totalPayment }
     },
     outputs: [
@@ -121,17 +134,19 @@ export const financeCalculators = [
     name: '投资收益计算器',
     industry: 'finance',
     icon: '📈',
-    description: '复利投资收益计算',
+    description: '按年化收益率进行复利测算',
     inputs: [
-      { key: 'principal', label: '初始本金', type: 'number', unit: '元', placeholder: '请输入初始本金' },
-      { key: 'years', label: '投资年限', type: 'number', unit: '年', placeholder: '请输入投资年限' },
-      { key: 'rate', label: '年化收益率', type: 'number', unit: '%', placeholder: '如8' }
+      { key: 'principal', label: '初始本金', type: 'number', unit: '元', placeholder: '请输入初始本金', min: 0 },
+      { key: 'years', label: '投资年限', type: 'number', unit: '年', placeholder: '请输入投资年限', min: 0 },
+      { key: 'rate', label: '年化收益率', type: 'number', unit: '%', placeholder: '例如 6', min: -100 }
     ],
     calculate: (data) => {
       const { principal, years, rate } = data
-      if (!principal || !years || !rate) return null
+      if (principal == null || years == null || rate == null) return null
+
       const amount = principal * Math.pow(1 + rate / 100, years)
       const profit = amount - principal
+
       return { amount, profit }
     },
     outputs: [
@@ -143,29 +158,38 @@ export const financeCalculators = [
     id: 'tax',
     name: '个人所得税计算器',
     industry: 'finance',
-    icon: '💵',
-    description: '个税计算',
+    icon: '🧾',
+    description: '按月度起征点和超额累进税率估算个税',
     inputs: [
-      { key: 'income', label: '税前收入', type: 'number', unit: '元', placeholder: '请输入税前收入' },
-      { key: 'deduction', label: '专项附加扣除', type: 'number', unit: '元', placeholder: '如2000' }
+      { key: 'income', label: '税前收入', type: 'number', unit: '元', placeholder: '请输入税前收入', min: 0 },
+      { key: 'deduction', label: '专项附加扣除', type: 'number', unit: '元', placeholder: '例如 2000', min: 0, required: false }
     ],
     calculate: (data) => {
       const { income, deduction = 0 } = data
-      if (!income) return null
+      if (income == null) return null
+
       const threshold = 5000
       const taxable = Math.max(0, income - threshold - deduction)
       let tax = 0
+
       if (taxable <= 3000) {
         tax = taxable * 0.03
       } else if (taxable <= 12000) {
         tax = taxable * 0.1 - 210
       } else if (taxable <= 25000) {
         tax = taxable * 0.2 - 1410
-      } else {
+      } else if (taxable <= 35000) {
         tax = taxable * 0.25 - 2660
+      } else if (taxable <= 55000) {
+        tax = taxable * 0.3 - 4410
+      } else if (taxable <= 80000) {
+        tax = taxable * 0.35 - 7160
+      } else {
+        tax = taxable * 0.45 - 15160
       }
+
       const afterTax = income - tax
-      return { tax, afterTax, taxable }
+      return { taxable, tax, afterTax }
     },
     outputs: [
       { key: 'taxable', label: '应纳税所得额', format: 'currency', unit: '元' },

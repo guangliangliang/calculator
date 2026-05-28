@@ -2,7 +2,6 @@
 import { ref, onMounted } from 'vue'
 import { getCalculatorsByIndustry, industries } from '../../utils/calculator-config.js'
 
-const industryId = ref('')
 const industryInfo = ref(null)
 const calculatorList = ref([])
 
@@ -10,68 +9,120 @@ onMounted(() => {
   const pages = getCurrentPages()
   const currentPage = pages[pages.length - 1]
   const options = currentPage.options
-  if (options.industryId) {
-    industryId.value = options.industryId
-    industryInfo.value = industries.find(i => i.id === options.industryId)
-    calculatorList.value = getCalculatorsByIndustry(options.industryId)
-    
-    if (industryInfo.value) {
-      uni.setNavigationBarTitle({
-        title: industryInfo.value.name
-      })
-    }
+
+  if (!options.industryId) return
+
+  industryInfo.value = industries.find(item => item.id === options.industryId) || null
+  calculatorList.value = getCalculatorsByIndustry(options.industryId)
+
+  if (industryInfo.value) {
+    uni.setNavigationBarTitle({
+      title: industryInfo.value.name
+    })
   }
 })
 
-function goToCalculator(calc) {
+function goToCalculator(calculator) {
   uni.navigateTo({
-    url: `/pages/calculator/index?id=${calc.id}`
+    url: `/pages/calculator/index?id=${calculator.id}`
   })
 }
 </script>
 
 <template>
-  <view class="container">
-    <view class="calculator-grid">
-      <view 
-        v-for="calc in calculatorList" 
-        :key="calc.id" 
-        class="calculator-item card"
-        hover-class="calculator-item-hover"
-        @click="goToCalculator(calc)"
-      >
-        <view class="calc-icon-bg">
-          <text class="calc-icon">{{ calc.icon }}</text>
+  <view class="page-shell">
+    <view class="container header-shell">
+      <view v-if="industryInfo" class="header-card" :style="{ background: industryInfo.gradient }">
+        <view class="header-icon">{{ industryInfo.icon }}</view>
+        <view class="header-content">
+          <text class="header-title">{{ industryInfo.name }}</text>
+          <text class="header-desc">{{ industryInfo.description }}</text>
         </view>
-        <view class="calc-info">
-          <text class="calc-name">{{ calc.name }}</text>
-          <text class="calc-desc">{{ calc.description }}</text>
-        </view>
-        <view class="calc-arrow">›</view>
       </view>
     </view>
+
+    <scroll-view class="content-scroll" scroll-y>
+      <view class="container content-shell">
+        <view class="calculator-grid">
+          <view
+            v-for="calculator in calculatorList"
+            :key="calculator.id"
+            class="calculator-item card"
+            hover-class="calculator-item-hover"
+            @click="goToCalculator(calculator)"
+          >
+            <view class="calc-icon-bg">
+              <text class="calc-icon">{{ calculator.icon }}</text>
+            </view>
+            <view class="calc-info">
+              <text class="calc-name">{{ calculator.name }}</text>
+              <text class="calc-desc">{{ calculator.description }}</text>
+            </view>
+            <view class="calc-arrow">›</view>
+          </view>
+        </view>
+      </view>
+    </scroll-view>
   </view>
 </template>
 
 <style scoped>
+.page-shell {
+  height: 100%;
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
 .container {
-  padding: 30rpx;
+  padding-left: 30rpx;
+  padding-right: 30rpx;
+}
+
+.header-shell {
+  flex: 0 0 auto;
+  padding-top: 30rpx;
+  padding-bottom: 20rpx;
+  background: #F8FAFC;
+  position: relative;
+  z-index: 2;
+}
+
+.content-scroll {
+  flex: 1;
+  height: 0;
+}
+
+page {
+  height: 100%;
+  overflow: hidden;
+}
+
+.content-shell {
+  padding-top: 12rpx;
+  padding-bottom: 30rpx;
 }
 
 .header-card {
   display: flex;
   align-items: center;
   padding: 32rpx;
-  border-radius: 24rpx;
+  border-radius: 28rpx;
   margin-bottom: 32rpx;
-  background: #FFFFFF;
-  box-shadow: 
-    6rpx 6rpx 12rpx rgba(200, 210, 225, 0.6),
-    -4rpx -4rpx 10rpx rgba(255, 255, 255, 0.9);
+  color: #FFFFFF;
 }
 
 .header-icon {
-  font-size: 44rpx;
+  width: 88rpx;
+  height: 88rpx;
+  margin-right: 24rpx;
+  border-radius: 20rpx;
+  background: rgba(255, 255, 255, 0.18);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 42rpx;
 }
 
 .header-content {
@@ -80,39 +131,22 @@ function goToCalculator(calc) {
 
 .header-title {
   display: block;
-  font-size: 32rpx;
-  font-weight: 600;
-  color: #2D3748;
-  margin-bottom: 6rpx;
+  font-size: 34rpx;
+  font-weight: 700;
+  margin-bottom: 8rpx;
 }
 
 .header-desc {
   display: block;
   font-size: 24rpx;
-  color: #7B8BA3;
+  line-height: 1.5;
+  opacity: 0.92;
 }
-
-.icon-bg {
-  width: 90rpx;
-  height: 90rpx;
-  border-radius: 20rpx;
-  background: #F8FAFC;
-  box-shadow: 
-    3rpx 3rpx 6rpx rgba(200, 210, 225, 0.5),
-    -2rpx -2rpx 5rpx rgba(255, 255, 255, 0.9);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-right: 28rpx;
-}
-
-
 
 .calculator-grid {
   display: flex;
   flex-direction: column;
   gap: 24rpx;
-  padding-bottom: 30rpx;
 }
 
 .calculator-item {
@@ -121,18 +155,12 @@ function goToCalculator(calc) {
   padding: 28rpx;
   border-radius: 24rpx;
   background: #FFFFFF;
-  box-shadow: 
+  box-shadow:
     0 2rpx 12rpx rgba(0, 0, 0, 0.06),
     0 1rpx 3rpx rgba(0, 0, 0, 0.04);
-  transition: all 0.15s;
-  cursor: pointer;
 }
 
-.calculator-item-hover {
-  transform: scale(0.98);
-  opacity: 0.95;
-}
-
+.calculator-item-hover,
 .calculator-item:active {
   transform: scale(0.98);
   opacity: 0.95;
@@ -162,13 +190,14 @@ function goToCalculator(calc) {
 .calc-name {
   font-size: 30rpx;
   font-weight: 600;
-  color: #2D3748;
+  color: #1E293B;
   margin-bottom: 6rpx;
 }
 
 .calc-desc {
   font-size: 24rpx;
-  color: #7B8BA3;
+  line-height: 1.5;
+  color: #64748B;
 }
 
 .calc-arrow {

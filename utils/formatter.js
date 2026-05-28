@@ -1,28 +1,41 @@
-export function formatCurrency(value) {
-  if (value === null || value === undefined) return '-'
-  return Number(value).toFixed(2)
+function isInvalidNumber(value) {
+  return !Number.isFinite(Number(value))
 }
 
-export function formatPercent(value) {
-  if (value === null || value === undefined) return '-'
-  return Number(value).toFixed(2)
+function formatWithPrecision(value, precision = 2) {
+  return Number(value).toFixed(precision)
 }
 
-export function formatNumber(value) {
-  if (value === null || value === undefined) return '-'
-  if (typeof value === 'string') return value
-  return Number(value).toFixed(0)
+function addThousands(value) {
+  const [integer, decimal] = value.split('.')
+  const formattedInteger = integer.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+  return decimal === undefined ? formattedInteger : `${formattedInteger}.${decimal}`
 }
 
-export function formatValue(value, format) {
+export function formatCurrency(value, precision = 2) {
+  if (value === null || value === undefined || isInvalidNumber(value)) return '-'
+  return addThousands(formatWithPrecision(value, precision))
+}
+
+export function formatPercent(value, precision = 2) {
+  if (value === null || value === undefined || isInvalidNumber(value)) return '-'
+  return formatWithPrecision(value, precision)
+}
+
+export function formatNumber(value, precision = 0) {
+  if (value === null || value === undefined || isInvalidNumber(value)) return '-'
+  return addThousands(formatWithPrecision(value, precision))
+}
+
+export function formatValue(value, format, precision) {
   switch (format) {
     case 'currency':
-      return formatCurrency(value)
+      return formatCurrency(value, precision ?? 2)
     case 'percent':
-      return formatPercent(value)
+      return formatPercent(value, precision ?? 2)
     case 'number':
     default:
-      return formatNumber(value)
+      return formatNumber(value, precision ?? 0)
   }
 }
 
@@ -37,17 +50,16 @@ export function saveHistory(calculatorId, inputs, outputs) {
       timestamp: new Date().toISOString()
     }
     history.unshift(newItem)
-    const trimmed = history.slice(0, 50)
-    uni.setStorageSync('calcHistory', trimmed)
-  } catch (e) {
-    console.error('保存历史记录失败', e)
+    uni.setStorageSync('calcHistory', history.slice(0, 50))
+  } catch (error) {
+    console.error('保存历史记录失败', error)
   }
 }
 
 export function getHistory() {
   try {
     return uni.getStorageSync('calcHistory') || []
-  } catch (e) {
+  } catch (error) {
     return []
   }
 }
