@@ -13,11 +13,17 @@ import DefaultResultPanel from './components/DefaultResultPanel.vue'
 import MortgageResultPanel from './components/MortgageResultPanel.vue'
 import CarLoanResultPanel from './components/CarLoanResultPanel.vue'
 import CreditCardResultPanel from './components/CreditCardResultPanel.vue'
+import TaxResultPanel from './components/TaxResultPanel.vue'
+import RenovationBudgetResultPanel from './components/RenovationBudgetResultPanel.vue'
+import EoqResultPanel from './components/EoqResultPanel.vue'
 
 const resultComponentMap = {
   mortgage: MortgageResultPanel,
   'car-loan': CarLoanResultPanel,
-  'credit-card': CreditCardResultPanel
+  'credit-card': CreditCardResultPanel,
+  tax: TaxResultPanel,
+  'renovation-budget': RenovationBudgetResultPanel,
+  eoq: EoqResultPanel
 }
 
 const calculator = ref(null)

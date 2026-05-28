@@ -277,6 +277,7 @@ export const financeCalculators = [
     industry: 'finance',
     icon: '🧾',
     description: '按月度起征点和超额累进税率估算个税',
+    resultRenderer: 'tax',
     inputs: [
       { key: 'income', label: '税前收入', type: 'number', unit: '元', placeholder: '请输入税前收入', min: 0 },
       { key: 'deduction', label: '专项附加扣除', type: 'number', unit: '元', placeholder: '例如 2000', min: 0, required: false }
@@ -288,25 +289,57 @@ export const financeCalculators = [
       const threshold = 5000
       const taxable = Math.max(0, income - threshold - deduction)
       let tax = 0
+      let rate = 0
+      let quickDeduction = 0
+      let bracketLabel = '无需缴税'
 
       if (taxable <= 3000) {
         tax = taxable * 0.03
+        rate = 0.03
+        bracketLabel = '3% 税率档'
       } else if (taxable <= 12000) {
         tax = taxable * 0.1 - 210
+        rate = 0.1
+        quickDeduction = 210
+        bracketLabel = '10% 税率档'
       } else if (taxable <= 25000) {
         tax = taxable * 0.2 - 1410
+        rate = 0.2
+        quickDeduction = 1410
+        bracketLabel = '20% 税率档'
       } else if (taxable <= 35000) {
         tax = taxable * 0.25 - 2660
+        rate = 0.25
+        quickDeduction = 2660
+        bracketLabel = '25% 税率档'
       } else if (taxable <= 55000) {
         tax = taxable * 0.3 - 4410
+        rate = 0.3
+        quickDeduction = 4410
+        bracketLabel = '30% 税率档'
       } else if (taxable <= 80000) {
         tax = taxable * 0.35 - 7160
+        rate = 0.35
+        quickDeduction = 7160
+        bracketLabel = '35% 税率档'
       } else {
         tax = taxable * 0.45 - 15160
+        rate = 0.45
+        quickDeduction = 15160
+        bracketLabel = '45% 税率档'
       }
 
       const afterTax = income - tax
-      return { taxable, tax, afterTax }
+      return {
+        threshold,
+        deduction,
+        taxable,
+        rate,
+        quickDeduction,
+        bracketLabel,
+        tax,
+        afterTax
+      }
     },
     outputs: [
       { key: 'taxable', label: '应纳税所得额', format: 'currency', unit: '元' },

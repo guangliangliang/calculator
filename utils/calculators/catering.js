@@ -182,6 +182,7 @@ export const cateringCalculators = [
     industry: 'catering',
     icon: '🛒',
     description: '估算经济订货批量和年订货次数',
+    resultRenderer: 'eoq',
     inputs: [
       { key: 'monthlySales', label: '月销量', type: 'number', unit: '件', placeholder: '请输入月销量', min: 0.01 },
       { key: 'orderCost', label: '单次订货成本', type: 'number', unit: '元', placeholder: '请输入单次订货成本', min: 0.01 },
@@ -194,8 +195,17 @@ export const cateringCalculators = [
       const eoq = Math.sqrt((2 * monthlySales * orderCost) / storageCost)
       const annualDemand = monthlySales * 12
       const orderTimes = annualDemand / eoq
+      const suggestedBatch = Math.ceil(eoq)
+      const reorderCycleDays = 365 / orderTimes
+      const averageMonthlyOrders = orderTimes / 12
 
-      return { eoq: Math.ceil(eoq), orderTimes }
+      return {
+        eoq: suggestedBatch,
+        annualDemand,
+        orderTimes,
+        reorderCycleDays,
+        averageMonthlyOrders
+      }
     },
     outputs: [
       { key: 'eoq', label: '经济订货批量', format: 'number', unit: '件' },

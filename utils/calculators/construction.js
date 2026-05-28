@@ -179,6 +179,7 @@ export const constructionCalculators = [
     industry: 'construction',
     icon: '🏡',
     description: '按面积和装修档次估算总预算',
+    resultRenderer: 'renovation-budget',
     inputs: [
       { key: 'area', label: '建筑面积', type: 'number', unit: '㎡', placeholder: '请输入建筑面积', min: 0.01 },
       {
@@ -198,9 +199,28 @@ export const constructionCalculators = [
       if (area == null || !grade) return null
 
       const priceMap = { simple: 500, medium: 1000, high: 2000 }
+      const gradeLabelMap = { simple: '简装', medium: '中档', high: '高档' }
+      const styleDescriptionMap = {
+        simple: '适合出租房、过渡居住，优先控制总成本。',
+        medium: '适合多数家庭自住，兼顾预算与居住体验。',
+        high: '适合重视设计感与材料品质的精装方案。'
+      }
       const pricePerSqm = priceMap[grade] || 1000
+      const total = area * pricePerSqm
+      const laborEstimate = total * 0.35
+      const materialEstimate = total * 0.5
+      const miscellaneousEstimate = total - laborEstimate - materialEstimate
 
-      return { pricePerSqm, total: area * pricePerSqm }
+      return {
+        grade,
+        gradeLabel: gradeLabelMap[grade] || '中档',
+        styleDescription: styleDescriptionMap[grade] || styleDescriptionMap.medium,
+        pricePerSqm,
+        total,
+        laborEstimate,
+        materialEstimate,
+        miscellaneousEstimate
+      }
     },
     outputs: [
       { key: 'pricePerSqm', label: '每平米造价', format: 'currency', unit: '元' },

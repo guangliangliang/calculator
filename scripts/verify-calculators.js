@@ -79,6 +79,27 @@ function testCreditCardSchedule() {
   assert(approxEqual(result.schedule[0].remainingPrincipal, 11000, 0.01), 'Credit card remaining principal mismatch')
 }
 
+function testTaxMetadata() {
+  const calculator = calculatorConfigs.find(item => item.id === 'tax')
+  const result = calculator.calculate({ income: 19000, deduction: 2000 })
+  assert(result.bracketLabel === '10% 税率档', 'Tax bracket label mismatch')
+  assert(approxEqual(result.quickDeduction, 210, 0.01), 'Tax quick deduction mismatch')
+}
+
+function testRenovationBudgetMetadata() {
+  const calculator = calculatorConfigs.find(item => item.id === 'renovation-budget')
+  const result = calculator.calculate({ area: 100, grade: 'high' })
+  assert(result.gradeLabel === '高档', 'Renovation grade label mismatch')
+  assert(result.materialEstimate > result.laborEstimate, 'Renovation material estimate should exceed labor estimate')
+}
+
+function testEoqMetadata() {
+  const calculator = calculatorConfigs.find(item => item.id === 'eoq')
+  const result = calculator.calculate({ monthlySales: 100, orderCost: 50, storageCost: 2 })
+  assert(result.annualDemand === 1200, 'EOQ annual demand mismatch')
+  assert(result.reorderCycleDays > 0, 'EOQ reorder cycle should be positive')
+}
+
 function testPricingBoundary() {
   const calculator = calculatorConfigs.find(item => item.id === 'pricing')
   const result = calculator.calculate({ costPrice: 20, targetMargin: 100 })
@@ -110,10 +131,13 @@ function run() {
   testMortgageZeroRate()
   testMortgageEqualPrincipal()
   testCreditCardSchedule()
+  testTaxMetadata()
   testPricingBoundary()
   testMaterialTotal()
   testTaxHighBracket()
   testRenovationBudget()
+  testRenovationBudgetMetadata()
+  testEoqMetadata()
   console.log(`Calculator verification passed: ${calculatorConfigs.length} calculators checked`)
 }
 
