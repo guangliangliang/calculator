@@ -4,6 +4,7 @@ import { getCalculatorById } from '../../utils/calculator-config.js'
 import { formatValue, saveHistory } from '../../utils/formatter.js'
 import {
   buildCalculationPayload,
+  getInputErrorMessage,
   getInitialInputs,
   getSelectLabel,
   validateCalculatorInputs
@@ -12,6 +13,7 @@ import {
 const calculator = ref(null)
 const inputs = ref({})
 const results = ref(null)
+const fieldErrors = ref({})
 
 onMounted(() => {
   const pages = getCurrentPages()
@@ -34,6 +36,9 @@ function updateInputValue(key, value) {
     ...inputs.value,
     [key]: value
   }
+
+  clearFieldError(key)
+  validateSingleField(key)
 }
 
 function handleSelectChange(event, input) {
@@ -47,14 +52,44 @@ function getSelectDisplay(input) {
   return getSelectLabel(input, inputs.value[input.key]) || input.placeholder || `请选择${input.label}`
 }
 
+function clearFieldError(key) {
+  if (!fieldErrors.value[key]) return
+
+  const nextErrors = { ...fieldErrors.value }
+  delete nextErrors[key]
+  fieldErrors.value = nextErrors
+}
+
+function validateSingleField(key) {
+  if (!calculator.value) return
+
+  const input = calculator.value.inputs.find(item => item.key === key)
+  if (!input) return
+
+  const payload = buildCalculationPayload(calculator.value, inputs.value)
+  const errorMessage = getInputErrorMessage(input, payload[key])
+
+  if (!errorMessage) return
+
+  fieldErrors.value = {
+    ...fieldErrors.value,
+    [key]: errorMessage
+  }
+}
+
+function hasFieldError(key) {
+  return Boolean(fieldErrors.value[key])
+}
+
 function calculate() {
   if (!calculator.value) return
 
   const payload = buildCalculationPayload(calculator.value, inputs.value)
-  const errorMessage = validateCalculatorInputs(calculator.value, payload)
+  const errors = validateCalculatorInputs(calculator.value, payload)
 
-  if (errorMessage) {
-    uni.showToast({ title: errorMessage, icon: 'none' })
+  fieldErrors.value = errors
+
+  if (Object.keys(errors).length > 0) {
     return
   }
 
@@ -72,6 +107,7 @@ function calculate() {
 function reset() {
   inputs.value = getInitialInputs(calculator.value)
   results.value = null
+  fieldErrors.value = {}
 }
 </script>
 
@@ -82,11 +118,12 @@ function reset() {
 
       <view class="input-item" v-for="input in calculator.inputs" :key="input.key">
         <view class="input-label">
+          <text v-if="input.required !== false" class="required-mark">*</text>
           {{ input.label }}
           <text v-if="input.required === false" class="optional-tag">选填</text>
         </view>
 
-        <view class="input-wrapper" v-if="input.type === 'select'">
+        <view class="input-wrapper" :class="{ 'input-wrapper-error': hasFieldError(input.key) }" v-if="input.type === 'select'">
           <picker
             mode="selector"
             :range="input.options.map(option => option.label)"
@@ -98,7 +135,7 @@ function reset() {
           </picker>
         </view>
 
-        <view class="input-wrapper" v-else>
+        <view class="input-wrapper" :class="{ 'input-wrapper-error': hasFieldError(input.key) }" v-else>
           <input
             class="input-field"
             type="digit"
@@ -108,6 +145,8 @@ function reset() {
           />
           <text v-if="input.unit" class="input-unit">{{ input.unit }}</text>
         </view>
+
+        <text v-if="fieldErrors[input.key]" class="error-text">{{ fieldErrors[input.key] }}</text>
       </view>
 
       <view class="button-group">
@@ -166,6 +205,12 @@ function reset() {
   color: #4A5568;
 }
 
+.required-mark {
+  color: #EF4444;
+  font-size: 30rpx;
+  font-weight: 700;
+}
+
 .optional-tag {
   font-size: 22rpx;
   color: #94A3B8;
@@ -179,6 +224,11 @@ function reset() {
   padding: 0 24rpx;
   min-height: 88rpx;
   border: 1rpx solid #E8EEF5;
+}
+
+.input-wrapper-error {
+  border-color: #FCA5A5;
+  background: #FEF2F2;
 }
 
 .input-field,
@@ -199,6 +249,14 @@ function reset() {
   font-size: 24rpx;
   color: #7B8BA3;
   margin-left: 12rpx;
+}
+
+.error-text {
+  display: block;
+  margin-top: 10rpx;
+  font-size: 24rpx;
+  color: #DC2626;
+  line-height: 1.4;
 }
 
 .button-group {
