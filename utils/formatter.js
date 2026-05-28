@@ -63,3 +63,19 @@ export function getHistory() {
     return []
   }
 }
+
+export function saveScheduleDetail(detail) {
+  try {
+    uni.setStorageSync('calcScheduleDetail', detail)
+  } catch (error) {
+    console.error('保存还款明细失败', error)
+  }
+}
+
+export function getScheduleDetail() {
+  try {
+    return uni.getStorageSync('calcScheduleDetail') || null
+  } catch (error) {
+    return null
+  }
+}

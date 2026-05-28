@@ -31,6 +31,14 @@
         "navigationBarBackgroundColor": "#E8EEF5",
         "navigationBarTextStyle": "black"
       }
+    },
+    {
+      "path": "pages/schedule-detail/index",
+      "style": {
+        "navigationBarTitleText": "还款明细",
+        "navigationBarBackgroundColor": "#E8EEF5",
+        "navigationBarTextStyle": "black"
+      }
     }
   ],
   "globalStyle": {

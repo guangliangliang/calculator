@@ -62,6 +62,23 @@ function testMortgageZeroRate() {
   assert(approxEqual(result.monthlyPayment, 10000, 0.01), 'Zero-rate mortgage should divide principal evenly')
 }
 
+function testMortgageEqualPrincipal() {
+  const calculator = calculatorConfigs.find(item => item.id === 'mortgage')
+  const result = calculator.calculate({ amount: 12, years: 1, rate: 0, repaymentMode: 'equal-principal' })
+  assert(approxEqual(result.firstMonthPayment, 10000, 0.01), 'Equal-principal first payment mismatch')
+  assert(approxEqual(result.monthlyDecrease, 0, 0.01), 'Zero-rate equal-principal should not decrease monthly')
+  assert(result.schedule.length === 12, 'Equal-principal schedule length mismatch')
+}
+
+function testCreditCardSchedule() {
+  const calculator = calculatorConfigs.find(item => item.id === 'credit-card')
+  const result = calculator.calculate({ amount: 12000, periods: 12, feeRate: 0.6 })
+  assert(approxEqual(result.monthlyPrincipal, 1000, 0.01), 'Credit card monthly principal mismatch')
+  assert(approxEqual(result.monthlyFee, 72, 0.01), 'Credit card monthly fee mismatch')
+  assert(result.schedule.length === 12, 'Credit card schedule length mismatch')
+  assert(approxEqual(result.schedule[0].remainingPrincipal, 11000, 0.01), 'Credit card remaining principal mismatch')
+}
+
 function testPricingBoundary() {
   const calculator = calculatorConfigs.find(item => item.id === 'pricing')
   const result = calculator.calculate({ costPrice: 20, targetMargin: 100 })
@@ -91,6 +108,8 @@ function run() {
   testConfigShape()
   testMortgage()
   testMortgageZeroRate()
+  testMortgageEqualPrincipal()
+  testCreditCardSchedule()
   testPricingBoundary()
   testMaterialTotal()
   testTaxHighBracket()

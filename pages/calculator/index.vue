@@ -1,7 +1,7 @@
 <script setup>
-import { ref, onMounted } from 'vue'
+import { computed, ref, onMounted } from 'vue'
 import { getCalculatorById } from '../../utils/calculator-config.js'
-import { formatValue, saveHistory } from '../../utils/formatter.js'
+import { saveHistory, saveScheduleDetail } from '../../utils/formatter.js'
 import {
   buildCalculationPayload,
   getInputErrorMessage,
@@ -9,11 +9,25 @@ import {
   getSelectLabel,
   validateCalculatorInputs
 } from '../../utils/calculator-form.js'
+import DefaultResultPanel from './components/DefaultResultPanel.vue'
+import MortgageResultPanel from './components/MortgageResultPanel.vue'
+import CarLoanResultPanel from './components/CarLoanResultPanel.vue'
+import CreditCardResultPanel from './components/CreditCardResultPanel.vue'
+
+const resultComponentMap = {
+  mortgage: MortgageResultPanel,
+  'car-loan': CarLoanResultPanel,
+  'credit-card': CreditCardResultPanel
+}
 
 const calculator = ref(null)
 const inputs = ref({})
 const results = ref(null)
 const fieldErrors = ref({})
+const currentResultComponent = computed(() => {
+  if (!calculator.value) return DefaultResultPanel
+  return resultComponentMap[calculator.value.resultRenderer] || DefaultResultPanel
+})
 
 onMounted(() => {
   const pages = getCurrentPages()
@@ -109,6 +123,21 @@ function reset() {
   results.value = null
   fieldErrors.value = {}
 }
+
+function openScheduleDetail() {
+  if (!calculator.value || !results.value?.schedule?.length) return
+
+  saveScheduleDetail({
+    calculatorId: calculator.value.id,
+    calculatorName: calculator.value.name,
+    resultRenderer: calculator.value.resultRenderer || '',
+    results: results.value
+  })
+
+  uni.navigateTo({
+    url: `/pages/schedule-detail/index?calculatorId=${calculator.value.id}`
+  })
+}
 </script>
 
 <template>
@@ -155,18 +184,13 @@ function reset() {
       </view>
     </view>
 
-    <view class="result-section card" v-if="results">
-      <view class="section-title">计算结果</view>
-      <view class="result-list">
-        <view class="result-item" v-for="output in calculator.outputs" :key="output.key">
-          <text class="result-label">{{ output.label }}</text>
-          <text class="result-value">
-            {{ formatValue(results[output.key], output.format, output.precision) }}
-            <text v-if="output.unit" class="result-unit">{{ output.unit }}</text>
-          </text>
-        </view>
-      </view>
-    </view>
+    <component
+      :is="currentResultComponent"
+      v-if="results"
+      :calculator="calculator"
+      :results="results"
+      @view-schedule="openScheduleDetail"
+    />
   </view>
 </template>
 
@@ -299,47 +323,4 @@ function reset() {
   border: none;
 }
 
-.result-section {
-  padding: 32rpx;
-  margin-bottom: 28rpx;
-  background: #F0FDF4;
-  border-radius: 24rpx;
-  border: 2rpx solid #D1FAE5;
-}
-
-.result-list {
-  display: flex;
-  flex-direction: column;
-  gap: 24rpx;
-}
-
-.result-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 24rpx 0;
-  border-bottom: 1rpx solid rgba(16, 185, 129, 0.1);
-}
-
-.result-item:last-child {
-  border-bottom: none;
-}
-
-.result-label {
-  font-size: 28rpx;
-  color: #4A5568;
-}
-
-.result-value {
-  font-size: 34rpx;
-  font-weight: 600;
-  color: #059669;
-}
-
-.result-unit {
-  font-size: 26rpx;
-  margin-left: 8rpx;
-  color: #10B981;
-  opacity: 0.8;
-}
 </style>
