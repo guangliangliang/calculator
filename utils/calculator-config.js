@@ -1,6 +1,9 @@
 import { cateringCalculators } from '@/utils/calculators/catering.js'
 import { constructionCalculators } from '@/utils/calculators/construction.js'
 import { financeCalculators } from '@/utils/calculators/finance.js'
+import { agricultureCalculators } from '@/utils/calculators/agriculture.js'
+import { logisticsCalculators } from '@/utils/calculators/logistics.js'
+import { hrCalculators } from '@/utils/calculators/hr.js'
 
 export const industries = [
   {
@@ -26,13 +29,40 @@ export const industries = [
     color: '#8B5CF6',
     gradient: 'linear-gradient(135deg, #8B5CF6 0%, #A78BFA 100%)',
     description: '贷款、投资、分期和个税测算'
+  },
+  {
+    id: 'agriculture',
+    name: '农业种植',
+    icon: '🌾',
+    color: '#16A34A',
+    gradient: 'linear-gradient(135deg, #16A34A 0%, #4ADE80 100%)',
+    description: '农药稀释、施肥、播种、灌溉和收益测算'
+  },
+  {
+    id: 'logistics',
+    name: '货运物流',
+    icon: '🚚',
+    color: '#2563EB',
+    gradient: 'linear-gradient(135deg, #2563EB 0%, #38BDF8 100%)',
+    description: '体积重、运费、油耗、零担和装柜测算'
+  },
+  {
+    id: 'hr',
+    name: '人力薪酬',
+    icon: '👥',
+    color: '#0F766E',
+    gradient: 'linear-gradient(135deg, #0F766E 0%, #2DD4BF 100%)',
+    description: '税后工资、社保公积金、加班费和用工成本测算'
   }
 ]
 
 export const calculatorConfigs = [
   ...cateringCalculators,
   ...constructionCalculators,
-  ...financeCalculators
+  ...financeCalculators,
+  ...agricultureCalculators,
+  ...logisticsCalculators,
+  ...hrCalculators
 ]
 
 export function getCalculatorsByIndustry(industryId) {

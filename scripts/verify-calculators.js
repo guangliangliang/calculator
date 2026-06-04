@@ -43,7 +43,10 @@ const calculatorDir = path.join(__dirname, '..', 'utils', 'calculators')
 const calculatorConfigs = [
   ...loadExport(path.join(calculatorDir, 'catering.js'), 'cateringCalculators'),
   ...loadExport(path.join(calculatorDir, 'construction.js'), 'constructionCalculators'),
-  ...loadExport(path.join(calculatorDir, 'finance.js'), 'financeCalculators')
+  ...loadExport(path.join(calculatorDir, 'finance.js'), 'financeCalculators'),
+  ...loadExport(path.join(calculatorDir, 'agriculture.js'), 'agricultureCalculators'),
+  ...loadExport(path.join(calculatorDir, 'logistics.js'), 'logisticsCalculators'),
+  ...loadExport(path.join(calculatorDir, 'hr.js'), 'hrCalculators')
 ]
 const {
   buildCalculationPayload,
@@ -83,7 +86,25 @@ const samplePayloads = {
   'credit-card': { amount: 12000, periods: 12, feeRate: 0.6 },
   investment: { principal: 10000, years: 3, rate: 6 },
   tax: { income: 19000, deduction: 2000 },
-  'early-repayment': { amount: 100, years: 30, rate: 3.6, elapsedMonths: 24, prepaymentAmount: 100000 }
+  'early-repayment': { amount: 100, years: 30, rate: 3.6, elapsedMonths: 24, prepaymentAmount: 100000 },
+  'pesticide-dilution': { waterVolume: 15, dilutionRatio: 500, sprayerCount: 2 },
+  'fertilizer-amount': { areaMu: 10, ratePerMu: 25, bagWeight: 40, lossRate: 5 },
+  'planting-density': { areaMu: 2, rowSpacing: 50, plantSpacing: 40 },
+  'seed-amount': { areaMu: 5, seedRatePerMu: 2, germinationRate: 80, lossRate: 10 },
+  'irrigation-water': { areaMu: 3, waterDepth: 30, waterPrice: 1.2 },
+  'crop-profit': { areaMu: 10, yieldPerMu: 500, salePrice: 3, costPerMu: 800 },
+  'volumetric-weight': { length: 60, width: 40, height: 50, pieces: 10, divisor: 6000, actualWeight: 180 },
+  'freight-cost': { weight: 1000, distance: 500, pricePerKgKm: 0.02, baseFee: 100, extraFee: 50 },
+  'truckload-freight': { distance: 800, fuelConsumption: 30, fuelPrice: 7.5, tollFee: 1000, driverCost: 800, otherCost: 200, profitRate: 15 },
+  'ltl-freight': { weight: 500, volume: 3, weightRate: 0.8, volumeRate: 180, minimumCharge: 500, extraFee: 100 },
+  'fuel-cost': { distance: 800, fuelConsumption: 30, fuelPrice: 7.5 },
+  'container-loading': { containerType: '40hq', cartonLength: 60, cartonWidth: 40, cartonHeight: 50 },
+  'after-tax-salary': { grossSalary: 20000, socialInsurance: 2200, housingFund: 1400, specialDeduction: 2000 },
+  'social-fund': { base: 10000, personalSocialRate: 10.5, companySocialRate: 25, personalFundRate: 7, companyFundRate: 7 },
+  'overtime-pay': { monthlySalary: 10000, workDaysPerMonth: 21.75, hoursPerDay: 8, overtimeHours: 10, multiplier: 1.5 },
+  'annual-bonus-tax': { bonus: 120000 },
+  'company-labor-cost': { grossSalary: 12000, companySocialFund: 3600, benefitCost: 800, headcount: 5 },
+  'attendance-deduction': { monthlySalary: 10000, workDaysPerMonth: 21.75, hoursPerDay: 8, absenceDays: 1, absenceHours: 4 }
 }
 
 function assert(condition, message) {
@@ -331,6 +352,113 @@ function testFinanceCalculators() {
   assert(result.termReducedMonths > 0, 'Early repayment should reduce term')
 }
 
+function testAgricultureCalculators() {
+  let result = calculate('pesticide-dilution')
+  assert(approxEqual(result.totalWater, 30), 'Pesticide dilution total water mismatch')
+  assert(approxEqual(result.pesticideAmount, 60), 'Pesticide dilution amount mismatch')
+  assert(approxEqual(result.solutionVolume, 30.06), 'Pesticide dilution solution volume mismatch')
+
+  result = calculate('fertilizer-amount')
+  assert(approxEqual(result.netAmount, 250), 'Fertilizer net amount mismatch')
+  assert(approxEqual(result.totalAmount, 262.5), 'Fertilizer total amount mismatch')
+  assert(result.bags === 7, 'Fertilizer bag count mismatch')
+
+  result = calculate('planting-density')
+  assert(approxEqual(result.plantsPerMu, 3333.35), 'Planting density per mu mismatch')
+  assert(approxEqual(result.totalPlants, 6666.7), 'Planting density total plants mismatch')
+
+  result = calculate('seed-amount')
+  assert(approxEqual(result.netSeed, 10), 'Seed net amount mismatch')
+  assert(approxEqual(result.adjustedSeed, 12.5), 'Seed adjusted amount mismatch')
+  assert(approxEqual(result.totalSeed, 13.75), 'Seed total amount mismatch')
+
+  result = calculate('irrigation-water')
+  assert(approxEqual(result.waterVolume, 60.0003), 'Irrigation water volume mismatch')
+  assert(approxEqual(result.waterCost, 72.00036), 'Irrigation water cost mismatch')
+
+  result = calculate('crop-profit')
+  assert(approxEqual(result.totalYield, 5000), 'Crop profit total yield mismatch')
+  assert(approxEqual(result.revenue, 15000), 'Crop profit revenue mismatch')
+  assert(approxEqual(result.totalCost, 8000), 'Crop profit total cost mismatch')
+  assert(approxEqual(result.netProfit, 7000), 'Crop profit net profit mismatch')
+  assert(approxEqual(result.profitPerMu, 700), 'Crop profit per mu mismatch')
+  assert(approxEqual(result.profitRate, 87.5), 'Crop profit rate mismatch')
+}
+
+function testLogisticsCalculators() {
+  let result = calculate('volumetric-weight')
+  assert(approxEqual(result.volumeCbm, 1.2), 'Volumetric weight volume mismatch')
+  assert(approxEqual(result.volumeWeight, 200), 'Volumetric weight mismatch')
+  assert(approxEqual(result.chargeableWeight, 200), 'Volumetric chargeable weight mismatch')
+
+  result = calculate('freight-cost')
+  assert(approxEqual(result.lineHaulFee, 10000), 'Freight line-haul fee mismatch')
+  assert(approxEqual(result.totalFreight, 10150), 'Freight total mismatch')
+  assert(approxEqual(result.costPerKg, 10.15), 'Freight cost per kg mismatch')
+
+  result = calculate('truckload-freight')
+  assert(approxEqual(result.fuelCost, 1800), 'Truckload fuel cost mismatch')
+  assert(approxEqual(result.totalCost, 3800), 'Truckload total cost mismatch')
+  assert(approxEqual(result.suggestedQuote, 4370), 'Truckload quote mismatch')
+  assert(approxEqual(result.grossProfit, 570), 'Truckload gross profit mismatch')
+
+  result = calculate('ltl-freight')
+  assert(approxEqual(result.weightFee, 400), 'LTL weight fee mismatch')
+  assert(approxEqual(result.volumeFee, 540), 'LTL volume fee mismatch')
+  assert(approxEqual(result.billingBase, 540), 'LTL billing base mismatch')
+  assert(approxEqual(result.totalFreight, 640), 'LTL total freight mismatch')
+
+  result = calculate('fuel-cost')
+  assert(approxEqual(result.fuelUsed, 240), 'Fuel used mismatch')
+  assert(approxEqual(result.fuelCost, 1800), 'Fuel cost mismatch')
+  assert(approxEqual(result.costPerKm, 2.25), 'Fuel cost per km mismatch')
+
+  result = calculate('container-loading')
+  assert(result.lengthCount === 20, 'Container length count mismatch')
+  assert(result.widthCount === 5, 'Container width count mismatch')
+  assert(result.heightCount === 5, 'Container height count mismatch')
+  assert(result.cartonCount === 500, 'Container carton count mismatch')
+  assert(approxEqual(result.volumeUtilization, 78.86, 0.1), 'Container utilization mismatch')
+}
+
+function testHrCalculators() {
+  let result = calculate('after-tax-salary')
+  assert(approxEqual(result.taxableIncome, 9400), 'After-tax salary taxable income mismatch')
+  assert(approxEqual(result.tax, 730), 'After-tax salary tax mismatch')
+  assert(approxEqual(result.afterTaxSalary, 15670), 'After-tax salary net income mismatch')
+
+  result = calculate('social-fund')
+  assert(approxEqual(result.personalSocial, 1050), 'Social fund personal social mismatch')
+  assert(approxEqual(result.companySocial, 2500), 'Social fund company social mismatch')
+  assert(approxEqual(result.personalFund, 700), 'Social fund personal fund mismatch')
+  assert(approxEqual(result.companyFund, 700), 'Social fund company fund mismatch')
+  assert(approxEqual(result.personalTotal, 1750), 'Social fund personal total mismatch')
+  assert(approxEqual(result.companyTotal, 3200), 'Social fund company total mismatch')
+
+  result = calculate('overtime-pay')
+  assert(approxEqual(result.hourlyRate, 57.47, 0.01), 'Overtime hourly rate mismatch')
+  assert(approxEqual(result.overtimePay, 862.07, 0.01), 'Overtime pay mismatch')
+
+  result = calculate('annual-bonus-tax')
+  assert(approxEqual(result.averageMonthlyBonus, 10000), 'Annual bonus average mismatch')
+  assert(approxEqual(result.rate, 10), 'Annual bonus tax rate mismatch')
+  assert(approxEqual(result.quickDeduction, 210), 'Annual bonus quick deduction mismatch')
+  assert(approxEqual(result.tax, 11790), 'Annual bonus tax mismatch')
+  assert(approxEqual(result.afterTaxBonus, 108210), 'Annual bonus after-tax mismatch')
+
+  result = calculate('company-labor-cost')
+  assert(approxEqual(result.costPerPerson, 16400), 'Company labor cost per person mismatch')
+  assert(approxEqual(result.totalMonthlyCost, 82000), 'Company labor monthly cost mismatch')
+  assert(approxEqual(result.totalAnnualCost, 984000), 'Company labor annual cost mismatch')
+  assert(approxEqual(result.extraCostRate, 36.6667), 'Company labor extra cost rate mismatch')
+
+  result = calculate('attendance-deduction')
+  assert(approxEqual(result.dailyRate, 459.77, 0.01), 'Attendance daily rate mismatch')
+  assert(approxEqual(result.hourlyRate, 57.47, 0.01), 'Attendance hourly rate mismatch')
+  assert(approxEqual(result.deduction, 689.66, 0.01), 'Attendance deduction mismatch')
+  assert(approxEqual(result.payableSalary, 9310.34, 0.01), 'Attendance payable salary mismatch')
+}
+
 function testBoundaries() {
   assert(getCalculator('pricing').calculate({ costPrice: 20, targetMargin: 100 }) === null, 'Pricing should reject 100% margin')
   assert(getCalculator('material-total').calculate({ unitPrice: 50, quantity: 0, shipping: 20 }).total === 20, 'Material total should allow zero quantity')
@@ -345,6 +473,9 @@ function run() {
   testCateringCalculators()
   testConstructionCalculators()
   testFinanceCalculators()
+  testAgricultureCalculators()
+  testLogisticsCalculators()
+  testHrCalculators()
   testBoundaries()
   console.log(`Calculator verification passed: ${calculatorConfigs.length} calculators checked`)
 }
