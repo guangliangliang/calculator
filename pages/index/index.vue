@@ -9,17 +9,18 @@ function goToIndustryList(industry) {
 </script>
 
 <template>
-  <view class="container">
+  <view class="page-container home-page">
     <view class="header">
       <text class="title">行业计算工具箱</text>
       <text class="subtitle">选择你需要的行业分类，快速进入对应计算器</text>
     </view>
 
-    <view class="industry-list">
+    <view class="industry-list list-stack">
       <view
         v-for="item in industries"
         :key="item.id"
-        class="industry-card"
+        class="industry-card card tap-card"
+        :style="{ borderLeftColor: item.color }"
         @click="goToIndustryList(item)"
       >
         <view class="icon-bg" :style="{ background: item.gradient }">
@@ -36,63 +37,61 @@ function goToIndustryList(industry) {
 </template>
 
 <style scoped>
-.container {
-  padding: 40rpx 30rpx;
+.home-page {
+  padding-top: 34rpx;
 }
 
 .header {
-  margin: 24rpx 0 50rpx;
+  margin: 8rpx 0 28rpx;
+  padding: 34rpx 30rpx;
+  border-radius: 26rpx;
+  background: linear-gradient(135deg, #FFFFFF 0%, #EEF2FF 100%);
+  border: 1rpx solid #E5EAF2;
+  box-shadow: 0 14rpx 34rpx rgba(79, 70, 229, 0.1);
 }
 
 .title {
   display: block;
-  margin-bottom: 12rpx;
-  font-size: 46rpx;
+  margin-bottom: 10rpx;
+  font-size: 42rpx;
   font-weight: 700;
-  color: #1E293B;
+  color: #0F172A;
+  line-height: 1.28;
 }
 
 .subtitle {
   display: block;
-  font-size: 28rpx;
-  line-height: 1.6;
+  font-size: 26rpx;
+  line-height: 1.5;
   color: #64748B;
 }
 
 .industry-list {
   display: flex;
   flex-direction: column;
-  gap: 28rpx;
 }
 
 .industry-card {
   display: flex;
   align-items: center;
-  padding: 32rpx;
-  border-radius: 24rpx;
-  background: #FFFFFF;
-  box-shadow:
-    0 2rpx 12rpx rgba(0, 0, 0, 0.06),
-    0 1rpx 3rpx rgba(0, 0, 0, 0.04);
-}
-
-.industry-card:active {
-  transform: scale(0.98);
-  opacity: 0.95;
+  min-height: 138rpx;
+  padding: 26rpx;
+  border-left-width: 8rpx;
+  border-left-style: solid;
 }
 
 .icon-bg {
-  width: 90rpx;
-  height: 90rpx;
-  border-radius: 20rpx;
+  width: 76rpx;
+  height: 76rpx;
+  border-radius: 18rpx;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-right: 28rpx;
+  margin-right: 22rpx;
 }
 
 .icon {
-  font-size: 42rpx;
+  font-size: 36rpx;
 }
 
 .info {
@@ -102,20 +101,22 @@ function goToIndustryList(industry) {
 }
 
 .name {
-  font-size: 32rpx;
+  font-size: 30rpx;
   font-weight: 600;
-  color: #1E293B;
-  margin-bottom: 8rpx;
+  color: #0F172A;
+  margin-bottom: 6rpx;
+  line-height: 1.35;
 }
 
 .desc {
   font-size: 24rpx;
-  line-height: 1.5;
+  line-height: 1.45;
   color: #64748B;
 }
 
 .arrow {
-  font-size: 44rpx;
+  margin-left: 16rpx;
+  font-size: 36rpx;
   color: #A0AEC0;
   font-weight: 300;
 }

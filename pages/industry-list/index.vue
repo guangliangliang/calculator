@@ -30,7 +30,7 @@ function goToCalculator(calculator) {
   <view class="page-shell">
     <view class="container header-shell">
       <view v-if="industryInfo" class="header-card" :style="{ background: industryInfo.gradient }">
-        <view class="header-icon">{{ industryInfo.icon }}</view>
+        <view class="header-icon icon-tile">{{ industryInfo.icon }}</view>
         <view class="header-content">
           <text class="header-title">{{ industryInfo.name }}</text>
           <text class="header-desc">{{ industryInfo.description }}</text>
@@ -40,11 +40,12 @@ function goToCalculator(calculator) {
 
     <scroll-view class="content-scroll" scroll-y>
       <view class="container content-shell">
-        <view class="calculator-grid">
+        <view class="calculator-grid list-stack">
           <view
             v-for="calculator in calculatorList"
             :key="calculator.id"
-            class="calculator-item card"
+            class="calculator-item card tap-card"
+            :style="{ borderLeftColor: industryInfo && industryInfo.color ? industryInfo.color : '#6366F1' }"
             hover-class="calculator-item-hover"
             @click="goToCalculator(calculator)"
           >
@@ -79,9 +80,9 @@ function goToCalculator(calculator) {
 
 .header-shell {
   flex: 0 0 auto;
-  padding-top: 30rpx;
-  padding-bottom: 20rpx;
-  background: #F8FAFC;
+  padding-top: 24rpx;
+  padding-bottom: 12rpx;
+  background: #F6F8FB;
   position: relative;
   z-index: 2;
 }
@@ -97,29 +98,26 @@ page {
 }
 
 .content-shell {
-  padding-top: 12rpx;
-  padding-bottom: 30rpx;
+  padding-top: 8rpx;
+  padding-bottom: calc(34rpx + env(safe-area-inset-bottom));
 }
 
 .header-card {
   display: flex;
   align-items: center;
-  padding: 32rpx;
-  border-radius: 28rpx;
-  margin-bottom: 32rpx;
+  padding: 28rpx;
+  border-radius: 22rpx;
+  margin-bottom: 18rpx;
   color: #FFFFFF;
+  box-shadow: 0 14rpx 30rpx rgba(15, 23, 42, 0.12);
 }
 
 .header-icon {
-  width: 88rpx;
-  height: 88rpx;
-  margin-right: 24rpx;
-  border-radius: 20rpx;
+  width: 76rpx;
+  height: 76rpx;
+  margin-right: 22rpx;
   background: rgba(255, 255, 255, 0.18);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 42rpx;
+  font-size: 36rpx;
 }
 
 .header-content {
@@ -128,7 +126,7 @@ page {
 
 .header-title {
   display: block;
-  font-size: 34rpx;
+  font-size: 32rpx;
   font-weight: 700;
   margin-bottom: 8rpx;
 }
@@ -143,39 +141,30 @@ page {
 .calculator-grid {
   display: flex;
   flex-direction: column;
-  gap: 24rpx;
 }
 
 .calculator-item {
   display: flex;
   align-items: center;
-  padding: 28rpx;
-  border-radius: 24rpx;
-  background: #FFFFFF;
-  box-shadow:
-    0 2rpx 12rpx rgba(0, 0, 0, 0.06),
-    0 1rpx 3rpx rgba(0, 0, 0, 0.04);
-}
-
-.calculator-item-hover,
-.calculator-item:active {
-  transform: scale(0.98);
-  opacity: 0.95;
+  min-height: 126rpx;
+  padding: 24rpx;
+  border-left-width: 8rpx;
+  border-left-style: solid;
 }
 
 .calc-icon-bg {
-  width: 80rpx;
-  height: 80rpx;
+  width: 70rpx;
+  height: 70rpx;
   border-radius: 18rpx;
   background: #F8FAFC;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-right: 24rpx;
+  margin-right: 20rpx;
 }
 
 .calc-icon {
-  font-size: 36rpx;
+  font-size: 32rpx;
 }
 
 .calc-info {
@@ -185,9 +174,9 @@ page {
 }
 
 .calc-name {
-  font-size: 30rpx;
+  font-size: 28rpx;
   font-weight: 600;
-  color: #1E293B;
+  color: #0F172A;
   margin-bottom: 6rpx;
 }
 
@@ -198,7 +187,8 @@ page {
 }
 
 .calc-arrow {
-  font-size: 40rpx;
+  margin-left: 14rpx;
+  font-size: 34rpx;
   color: #A0AEC0;
   font-weight: 300;
 }

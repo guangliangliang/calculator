@@ -52,9 +52,9 @@ defineProps({
 <style scoped>
 .result-section,
 .tips-section {
-  padding: 32rpx;
-  margin-bottom: 28rpx;
-  border-radius: 24rpx;
+  padding: 28rpx;
+  margin-bottom: 24rpx;
+  border-radius: 20rpx;
 }
 
 .result-section {
@@ -69,13 +69,13 @@ defineProps({
 .section-title {
   font-size: 28rpx;
   font-weight: 600;
-  color: #334155;
-  margin-bottom: 24rpx;
+  color: #0F172A;
+  margin-bottom: 22rpx;
 }
 
 .hero-card {
-  padding: 28rpx;
-  border-radius: 22rpx;
+  padding: 24rpx;
+  border-radius: 18rpx;
   background: rgba(255, 255, 255, 0.9);
   margin-bottom: 22rpx;
 }
@@ -104,12 +104,12 @@ defineProps({
 .summary-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 18rpx;
+  gap: 16rpx;
 }
 
 .summary-card {
-  padding: 22rpx;
-  border-radius: 18rpx;
+  padding: 20rpx;
+  border-radius: 16rpx;
   background: rgba(255, 255, 255, 0.82);
 }
 

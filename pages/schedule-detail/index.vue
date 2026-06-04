@@ -130,7 +130,7 @@ async function exportSchedule() {
 </script>
 
 <template>
-  <view class="container" v-if="results">
+  <view class="page-container schedule-page" v-if="results">
     <view class="hero card">
       <view class="hero-header">
         <view>
@@ -192,8 +192,8 @@ async function exportSchedule() {
 </template>
 
 <style scoped>
-.container {
-  padding: 30rpx;
+.schedule-page {
+  padding-top: 24rpx;
 }
 
 .hero {
@@ -204,19 +204,19 @@ async function exportSchedule() {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  gap: 20rpx;
-  margin-bottom: 28rpx;
+  gap: 18rpx;
+  margin-bottom: 22rpx;
 }
 
 .hero-title {
-  font-size: 34rpx;
+  font-size: 32rpx;
   font-weight: 700;
   color: #1E293B;
 }
 
 .hero-subtitle {
   display: block;
-  margin-top: 10rpx;
+  margin-top: 8rpx;
   font-size: 24rpx;
   color: #475569;
 }
@@ -231,10 +231,10 @@ async function exportSchedule() {
 }
 
 .export-button {
-  margin-bottom: 24rpx;
-  height: 80rpx;
-  line-height: 80rpx;
-  border-radius: 40rpx;
+  margin-bottom: 22rpx;
+  height: 76rpx;
+  line-height: 76rpx;
+  border-radius: 38rpx;
   background: #0F766E;
   color: #FFFFFF;
   font-size: 26rpx;
@@ -248,12 +248,12 @@ async function exportSchedule() {
 .summary-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 18rpx;
+  gap: 16rpx;
 }
 
 .summary-item {
-  padding: 22rpx;
-  border-radius: 20rpx;
+  padding: 20rpx;
+  border-radius: 18rpx;
   background: rgba(255, 255, 255, 0.8);
 }
 
@@ -276,7 +276,7 @@ async function exportSchedule() {
 }
 
 .table-title {
-  padding: 28rpx 28rpx 20rpx;
+  padding: 24rpx 24rpx 18rpx;
   font-size: 28rpx;
   font-weight: 600;
   color: #334155;
@@ -286,7 +286,7 @@ async function exportSchedule() {
 .table-row {
   display: flex;
   align-items: center;
-  padding: 22rpx 20rpx;
+  padding: 20rpx 18rpx;
 }
 
 .table-head {

@@ -139,7 +139,17 @@ function openScheduleDetail() {
 </script>
 
 <template>
-  <view class="container" v-if="calculator">
+  <view class="page-container calculator-page" v-if="calculator">
+    <view class="calculator-hero card">
+      <view class="calculator-icon-wrap">
+        <text class="calculator-icon">{{ calculator.icon }}</text>
+      </view>
+      <view class="calculator-meta">
+        <text class="calculator-title">{{ calculator.name }}</text>
+        <text class="calculator-desc">{{ calculator.description }}</text>
+      </view>
+    </view>
+
     <view class="input-section card">
       <view class="section-title">请输入信息</view>
 
@@ -220,38 +230,81 @@ function openScheduleDetail() {
 </template>
 
 <style scoped>
-.container {
-  padding: 30rpx;
+.calculator-page {
+  padding-top: 24rpx;
+}
+
+.calculator-hero {
+  display: flex;
+  align-items: center;
+  gap: 22rpx;
+  margin-bottom: 22rpx;
+  padding: 26rpx;
+  background: linear-gradient(135deg, #FFFFFF 0%, #F8FAFC 100%);
+}
+
+.calculator-icon-wrap {
+  width: 78rpx;
+  height: 78rpx;
+  border-radius: 20rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #EEF2FF;
+  border: 1rpx solid #E0E7FF;
+}
+
+.calculator-icon {
+  font-size: 38rpx;
+}
+
+.calculator-meta {
+  flex: 1;
+  min-width: 0;
+}
+
+.calculator-title {
+  display: block;
+  font-size: 32rpx;
+  font-weight: 700;
+  color: #0F172A;
+  line-height: 1.32;
+}
+
+.calculator-desc {
+  display: block;
+  margin-top: 8rpx;
+  font-size: 24rpx;
+  line-height: 1.45;
+  color: #64748B;
 }
 
 .input-section {
-  padding: 32rpx;
-  margin-bottom: 28rpx;
+  padding: 28rpx;
+  margin-bottom: 24rpx;
   background: #FFFFFF;
-  border-radius: 24rpx;
-  box-shadow:
-    0 2rpx 12rpx rgba(0, 0, 0, 0.06),
-    0 1rpx 3rpx rgba(0, 0, 0, 0.04);
 }
 
 .section-title {
+  padding-left: 16rpx;
+  border-left: 8rpx solid #6366F1;
   font-size: 28rpx;
   font-weight: 600;
-  color: #4A5568;
-  margin-bottom: 28rpx;
+  color: #0F172A;
+  margin-bottom: 22rpx;
 }
 
 .input-item {
-  margin-bottom: 28rpx;
+  margin-bottom: 22rpx;
 }
 
 .input-label {
   display: flex;
   align-items: center;
   gap: 12rpx;
-  margin-bottom: 14rpx;
-  font-size: 28rpx;
-  color: #4A5568;
+  margin-bottom: 12rpx;
+  font-size: 26rpx;
+  color: #475569;
 }
 
 .required-mark {
@@ -268,11 +321,11 @@ function openScheduleDetail() {
 .input-wrapper {
   display: flex;
   align-items: center;
-  background: #F8FAFC;
-  border-radius: 16rpx;
-  padding: 0 24rpx;
-  min-height: 88rpx;
-  border: 1rpx solid #E8EEF5;
+  background: #F9FBFF;
+  border-radius: 14rpx;
+  padding: 0 22rpx;
+  min-height: 82rpx;
+  border: 1rpx solid #E2E8F0;
 }
 
 .input-wrapper-error {
@@ -283,8 +336,8 @@ function openScheduleDetail() {
 .input-field,
 .picker-value {
   flex: 1;
-  min-height: 88rpx;
-  font-size: 28rpx;
+  min-height: 82rpx;
+  font-size: 27rpx;
   color: #2D3748;
   display: flex;
   align-items: center;
@@ -310,20 +363,20 @@ function openScheduleDetail() {
 
 .button-group {
   display: flex;
-  gap: 20rpx;
-  margin-top: 20rpx;
+  gap: 18rpx;
+  margin-top: 18rpx;
 }
 
 .btn-reset,
 .btn-calculate {
-  height: 88rpx;
-  border-radius: 44rpx;
+  height: 84rpx;
+  border-radius: 42rpx;
   font-size: 28rpx;
   font-weight: 600;
   display: flex;
   align-items: center;
   justify-content: center;
-  line-height: 88rpx;
+  line-height: 84rpx;
   padding: 0;
   margin: 0;
   box-shadow: none;
@@ -338,9 +391,10 @@ function openScheduleDetail() {
 
 .btn-calculate {
   flex: 2;
-  background: #6366F1;
+  background: linear-gradient(135deg, #6366F1 0%, #4F46E5 100%);
   color: #FFFFFF;
   border: none;
+  box-shadow: 0 10rpx 18rpx rgba(79, 70, 229, 0.18);
 }
 
 .btn-reset::after,

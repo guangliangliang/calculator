@@ -94,9 +94,9 @@ const schedulePreview = computed(() => props.results.schedule?.slice(0, 12) || [
 <style scoped>
 .result-section,
 .schedule-section {
-  padding: 32rpx;
-  margin-bottom: 28rpx;
-  border-radius: 24rpx;
+  padding: 28rpx;
+  margin-bottom: 24rpx;
+  border-radius: 20rpx;
 }
 
 .result-section {
@@ -112,14 +112,14 @@ const schedulePreview = computed(() => props.results.schedule?.slice(0, 12) || [
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 20rpx;
-  margin-bottom: 28rpx;
+  gap: 18rpx;
+  margin-bottom: 22rpx;
 }
 
 .section-title {
   font-size: 28rpx;
   font-weight: 600;
-  color: #4A5568;
+  color: #0F172A;
 }
 
 .mode-tag {
@@ -134,12 +134,12 @@ const schedulePreview = computed(() => props.results.schedule?.slice(0, 12) || [
 .summary-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 20rpx;
+  gap: 16rpx;
 }
 
 .summary-card {
-  padding: 24rpx;
-  border-radius: 20rpx;
+  padding: 20rpx;
+  border-radius: 18rpx;
   background: rgba(255, 255, 255, 0.82);
 }
 
@@ -165,7 +165,7 @@ const schedulePreview = computed(() => props.results.schedule?.slice(0, 12) || [
 .schedule-row {
   display: flex;
   align-items: center;
-  padding: 20rpx 16rpx;
+  padding: 18rpx 14rpx;
   border-bottom: 1rpx solid #EDF2F7;
   background: #FFFFFF;
 }
@@ -201,10 +201,10 @@ const schedulePreview = computed(() => props.results.schedule?.slice(0, 12) || [
 }
 
 .detail-button {
-  margin-top: 20rpx;
-  height: 80rpx;
-  line-height: 80rpx;
-  border-radius: 40rpx;
+  margin-top: 18rpx;
+  height: 76rpx;
+  line-height: 76rpx;
+  border-radius: 38rpx;
   background: #166534;
   color: #FFFFFF;
   font-size: 26rpx;

@@ -30,31 +30,31 @@ defineProps({
 
 <style scoped>
 .result-section {
-  padding: 32rpx;
-  margin-bottom: 28rpx;
+  padding: 28rpx;
+  margin-bottom: 24rpx;
   background: #F0FDF4;
-  border-radius: 24rpx;
+  border-radius: 20rpx;
   border: 2rpx solid #D1FAE5;
 }
 
 .section-title {
   font-size: 28rpx;
   font-weight: 600;
-  color: #4A5568;
-  margin-bottom: 28rpx;
+  color: #0F172A;
+  margin-bottom: 22rpx;
 }
 
 .result-list {
   display: flex;
   flex-direction: column;
-  gap: 24rpx;
+  gap: 18rpx;
 }
 
 .result-item {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 24rpx 0;
+  padding: 20rpx 0;
   border-bottom: 1rpx solid rgba(16, 185, 129, 0.1);
 }
 

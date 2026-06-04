@@ -1,23 +1,94 @@
 page {
-  background: linear-gradient(135deg, #F0F4F8 0%, #E8EEF5 100%);
+  background: linear-gradient(180deg, #F8FAFC 0%, #EEF2F7 100%);
+  color: #1E293B;
 }
 
 view, text, input, button {
   box-sizing: border-box;
 }
 
+button::after {
+  border: none;
+}
+
 .container {
-  padding: 20rpx;
+  padding-left: 30rpx;
+  padding-right: 30rpx;
+}
+
+.page-container {
+  padding: 32rpx 30rpx calc(40rpx + env(safe-area-inset-bottom));
+}
+
+.section-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 24rpx;
+}
+
+.list-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 22rpx;
 }
 
 .card {
   background: #FFFFFF;
-  border-radius: 24rpx;
+  border-radius: 20rpx;
   padding: 28rpx;
-  margin-bottom: 24rpx;
-  box-shadow: 
-    0 2rpx 12rpx rgba(0, 0, 0, 0.06),
-    0 1rpx 3rpx rgba(0, 0, 0, 0.04);
+  border: 1rpx solid #E5EAF2;
+  box-shadow:
+    0 8rpx 24rpx rgba(15, 23, 42, 0.05),
+    0 2rpx 6rpx rgba(15, 23, 42, 0.04);
+}
+
+.tap-card {
+  transition: transform 0.15s ease, opacity 0.15s ease;
+}
+
+.tap-card:active {
+  transform: scale(0.985);
+  opacity: 0.92;
+}
+
+.icon-tile {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 18rpx;
+}
+
+.page-title {
+  display: block;
+  font-size: 44rpx;
+  font-weight: 700;
+  color: #0F172A;
+  line-height: 1.25;
+}
+
+.page-subtitle {
+  display: block;
+  margin-top: 12rpx;
+  font-size: 26rpx;
+  line-height: 1.55;
+  color: #64748B;
+}
+
+.item-title {
+  display: block;
+  font-size: 30rpx;
+  font-weight: 600;
+  color: #0F172A;
+  line-height: 1.35;
+}
+
+.item-desc {
+  display: block;
+  margin-top: 6rpx;
+  font-size: 24rpx;
+  line-height: 1.45;
+  color: #64748B;
 }
 
 .btn-primary {

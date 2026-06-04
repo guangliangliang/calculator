@@ -10,7 +10,7 @@
 @import url('@/static/css/common.css');
 
 page {
-  background-color: #F8FAFC;
+  background: linear-gradient(180deg, #F8FAFC 0%, #EEF2F7 100%);
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
