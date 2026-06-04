@@ -227,7 +227,7 @@ export const cateringCalculators = [
       if (fixedCost == null || grossMarginRate == null || grossMarginRate >= 100) return null
 
       const breakEvenRevenue = fixedCost / (grossMarginRate / 100)
-      const grossProfitNeeded = breakEvenRevenue - fixedCost
+      const grossProfitNeeded = fixedCost
 
       return { breakEvenRevenue, grossProfitNeeded }
     },

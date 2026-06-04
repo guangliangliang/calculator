@@ -1,10 +1,13 @@
 <script setup>
-import { computed, ref, onMounted } from 'vue'
+import { computed, getCurrentInstance, ref } from 'vue'
+import { onLoad } from '@dcloudio/uni-app'
 import { getScheduleDetail, formatCurrency } from '@/utils/formatter.js'
+import { getCalculatorById } from '@/utils/calculator-config.js'
 import { buildScheduleFileName, buildScheduleXlsx, downloadXlsxFile } from '@/utils/xlsx-export.js'
 
 const detail = ref(null)
 const exporting = ref(false)
+const pageInstance = getCurrentInstance()
 
 const calculatorName = computed(() => detail.value?.calculatorName || '还款明细')
 const results = computed(() => detail.value?.results || null)
@@ -37,9 +40,30 @@ const detailInterestLabel = computed(() => (
   resultRenderer.value === 'credit-card' ? '手续费' : '利息'
 ))
 
-onMounted(() => {
-  detail.value = getScheduleDetail()
+function buildDetailFromSource(source) {
+  if (!source?.calculatorId) return source || null
 
+  const calculator = getCalculatorById(source.calculatorId)
+  if (!calculator) return source || null
+
+  if (source.inputs) {
+    const recalculatedResults = calculator.calculate(source.inputs)
+    if (recalculatedResults?.schedule?.length) {
+      return {
+        calculatorId: calculator.id,
+        calculatorName: source.calculatorName || calculator.name,
+        resultRenderer: source.resultRenderer || calculator.resultRenderer || '',
+        inputs: source.inputs,
+        results: recalculatedResults
+      }
+    }
+  }
+
+  return source || null
+}
+
+function applyDetail(nextDetail) {
+  detail.value = buildDetailFromSource(nextDetail)
   if (!detail.value?.results?.schedule?.length) {
     uni.showToast({ title: '未找到还款明细', icon: 'none' })
     setTimeout(() => {
@@ -51,6 +75,40 @@ onMounted(() => {
   uni.setNavigationBarTitle({
     title: `${detail.value.calculatorName}明细`
   })
+}
+
+function getPageEventChannel() {
+  const proxy = pageInstance?.proxy
+  if (typeof proxy?.getOpenerEventChannel === 'function') {
+    return proxy.getOpenerEventChannel()
+  }
+
+  if (typeof getCurrentPages === 'function') {
+    const pages = getCurrentPages()
+    const currentPage = pages[pages.length - 1]
+    if (typeof currentPage?.getOpenerEventChannel === 'function') {
+      return currentPage.getOpenerEventChannel()
+    }
+  }
+
+  return null
+}
+
+onLoad(() => {
+  const eventChannel = getPageEventChannel()
+  let resolved = false
+
+  if (eventChannel?.on) {
+    eventChannel.on('scheduleDetail', (payload) => {
+      resolved = true
+      applyDetail(payload)
+    })
+  }
+
+  setTimeout(() => {
+    if (resolved || detail.value) return
+    applyDetail(getScheduleDetail())
+  }, 0)
 })
 
 async function exportSchedule() {

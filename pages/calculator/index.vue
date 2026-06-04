@@ -1,5 +1,6 @@
 <script setup>
-import { computed, ref, onMounted } from 'vue'
+import { ref } from 'vue'
+import { onLoad } from '@dcloudio/uni-app'
 import { getCalculatorById } from '@/utils/calculator-config.js'
 import { saveHistory, saveScheduleDetail } from '@/utils/formatter.js'
 import {
@@ -17,29 +18,12 @@ import TaxResultPanel from '@/pages/calculator/components/TaxResultPanel.vue'
 import RenovationBudgetResultPanel from '@/pages/calculator/components/RenovationBudgetResultPanel.vue'
 import EoqResultPanel from '@/pages/calculator/components/EoqResultPanel.vue'
 
-const resultComponentMap = {
-  mortgage: MortgageResultPanel,
-  'car-loan': CarLoanResultPanel,
-  'credit-card': CreditCardResultPanel,
-  tax: TaxResultPanel,
-  'renovation-budget': RenovationBudgetResultPanel,
-  eoq: EoqResultPanel
-}
-
 const calculator = ref(null)
 const inputs = ref({})
 const results = ref(null)
 const fieldErrors = ref({})
-const currentResultComponent = computed(() => {
-  if (!calculator.value) return DefaultResultPanel
-  return resultComponentMap[calculator.value.resultRenderer] || DefaultResultPanel
-})
 
-onMounted(() => {
-  const pages = getCurrentPages()
-  const currentPage = pages[pages.length - 1]
-  const options = currentPage.options
-
+onLoad((options) => {
   if (!options.id) return
 
   calculator.value = getCalculatorById(options.id)
@@ -133,15 +117,23 @@ function reset() {
 function openScheduleDetail() {
   if (!calculator.value || !results.value?.schedule?.length) return
 
-  saveScheduleDetail({
+  const payload = buildCalculationPayload(calculator.value, inputs.value)
+  const scheduleDetail = {
     calculatorId: calculator.value.id,
     calculatorName: calculator.value.name,
     resultRenderer: calculator.value.resultRenderer || '',
+    inputs: payload,
     results: results.value
-  })
+  }
+
+  saveScheduleDetail(scheduleDetail)
 
   uni.navigateTo({
     url: `/pages/schedule-detail/index?calculatorId=${calculator.value.id}`
+    ,
+    success: (res) => {
+      res.eventChannel?.emit?.('scheduleDetail', scheduleDetail)
+    }
   })
 }
 </script>
@@ -190,13 +182,40 @@ function openScheduleDetail() {
       </view>
     </view>
 
-    <component
-      :is="currentResultComponent"
-      v-if="results"
-      :calculator="calculator"
-      :results="results"
-      @view-schedule="openScheduleDetail"
-    />
+    <block v-if="results">
+      <MortgageResultPanel
+        v-if="calculator.resultRenderer === 'mortgage'"
+        :results="results"
+        @view-schedule="openScheduleDetail"
+      />
+      <CarLoanResultPanel
+        v-else-if="calculator.resultRenderer === 'car-loan'"
+        :results="results"
+        @view-schedule="openScheduleDetail"
+      />
+      <CreditCardResultPanel
+        v-else-if="calculator.resultRenderer === 'credit-card'"
+        :results="results"
+        @view-schedule="openScheduleDetail"
+      />
+      <TaxResultPanel
+        v-else-if="calculator.resultRenderer === 'tax'"
+        :results="results"
+      />
+      <RenovationBudgetResultPanel
+        v-else-if="calculator.resultRenderer === 'renovation-budget'"
+        :results="results"
+      />
+      <EoqResultPanel
+        v-else-if="calculator.resultRenderer === 'eoq'"
+        :results="results"
+      />
+      <DefaultResultPanel
+        v-else
+        :calculator="calculator"
+        :results="results"
+      />
+    </block>
   </view>
 </template>
 
