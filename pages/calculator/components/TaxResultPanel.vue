@@ -10,52 +10,69 @@ defineProps({
 </script>
 
 <template>
-  <view class="result-section card">
-    <view class="section-header">
-      <view class="section-title">个税结果</view>
+  <view class="result-panel result-panel-blue card">
+    <view class="result-header">
+      <view>
+        <text class="result-kicker">个税测算</text>
+        <text class="result-title">个税结果</text>
+      </view>
       <text class="bracket-tag">{{ results.bracketLabel }}</text>
     </view>
 
-    <view class="hero-card">
-      <text class="hero-label">税后到手</text>
-      <text class="hero-value">{{ formatCurrency(results.afterTax) }}元</text>
+    <view class="result-hero-block">
+      <text class="result-hero-label">税后到手</text>
+      <text class="result-hero-value">
+        {{ formatCurrency(results.afterTax) }}
+        <text class="metric-unit">元</text>
+      </text>
     </view>
 
-    <view class="summary-grid">
-      <view class="summary-card">
-        <text class="summary-label">税前收入</text>
-        <text class="summary-value">{{ formatCurrency(results.afterTax + results.tax) }}元</text>
+    <view class="metric-grid">
+      <view class="metric-card">
+        <text class="metric-label">税前收入</text>
+        <text class="metric-value">{{ formatCurrency(results.afterTax + results.tax) }}<text class="metric-unit">元</text></text>
       </view>
 
-      <view class="summary-card">
-        <text class="summary-label">起征点</text>
-        <text class="summary-value">{{ formatCurrency(results.threshold) }}元</text>
+      <view class="metric-card">
+        <text class="metric-label">应缴个税</text>
+        <text class="metric-value">{{ formatCurrency(results.tax) }}<text class="metric-unit">元</text></text>
       </view>
 
-      <view class="summary-card">
-        <text class="summary-label">专项附加扣除</text>
-        <text class="summary-value">{{ formatCurrency(results.deduction) }}元</text>
+      <view class="metric-card">
+        <text class="metric-label">起征点</text>
+        <text class="metric-value">{{ formatCurrency(results.threshold) }}<text class="metric-unit">元</text></text>
       </view>
 
-      <view class="summary-card">
-        <text class="summary-label">应纳税所得额</text>
-        <text class="summary-value">{{ formatCurrency(results.taxable) }}元</text>
+      <view class="metric-card">
+        <text class="metric-label">专项附加扣除</text>
+        <text class="metric-value">{{ formatCurrency(results.deduction) }}<text class="metric-unit">元</text></text>
       </view>
 
-      <view class="summary-card">
-        <text class="summary-label">适用税率</text>
-        <text class="summary-value">{{ formatPercent(results.rate * 100) }}%</text>
+      <view class="metric-card">
+        <text class="metric-label">应纳税所得额</text>
+        <text class="metric-value">{{ formatCurrency(results.taxable) }}<text class="metric-unit">元</text></text>
       </view>
 
-      <view class="summary-card">
-        <text class="summary-label">速算扣除数</text>
-        <text class="summary-value">{{ formatCurrency(results.quickDeduction) }}元</text>
+      <view class="metric-card">
+        <text class="metric-label">适用税率</text>
+        <text class="metric-value">{{ formatPercent(results.rate * 100) }}<text class="metric-unit">%</text></text>
+      </view>
+
+      <view class="metric-card">
+        <text class="metric-label">速算扣除数</text>
+        <text class="metric-value">{{ formatCurrency(results.quickDeduction) }}<text class="metric-unit">元</text></text>
       </view>
     </view>
   </view>
 
-  <view class="formula-section card">
-    <view class="section-title">计算说明</view>
+  <view class="result-detail-panel card">
+    <view class="result-header">
+      <view>
+        <text class="result-kicker">计算依据</text>
+        <text class="result-title">计算说明</text>
+      </view>
+    </view>
+
     <view class="formula-row">
       <text class="formula-label">应纳税所得额</text>
       <text class="formula-text">
@@ -72,36 +89,6 @@ defineProps({
 </template>
 
 <style scoped>
-.result-section,
-.formula-section {
-  padding: 28rpx;
-  margin-bottom: 24rpx;
-  border-radius: 20rpx;
-}
-
-.result-section {
-  background: linear-gradient(180deg, #EFF6FF 0%, #F8FAFC 100%);
-  border: 2rpx solid #BFDBFE;
-}
-
-.formula-section {
-  background: #FFFFFF;
-}
-
-.section-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 18rpx;
-  margin-bottom: 22rpx;
-}
-
-.section-title {
-  font-size: 28rpx;
-  font-weight: 600;
-  color: #0F172A;
-}
-
 .bracket-tag {
   padding: 10rpx 18rpx;
   border-radius: 999rpx;
@@ -109,51 +96,6 @@ defineProps({
   color: #1D4ED8;
   font-size: 22rpx;
   font-weight: 600;
-}
-
-.hero-card {
-  padding: 24rpx;
-  border-radius: 18rpx;
-  background: rgba(255, 255, 255, 0.88);
-  margin-bottom: 22rpx;
-}
-
-.hero-label {
-  display: block;
-  font-size: 24rpx;
-  color: #64748B;
-  margin-bottom: 12rpx;
-}
-
-.hero-value {
-  font-size: 38rpx;
-  font-weight: 700;
-  color: #1D4ED8;
-}
-
-.summary-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 16rpx;
-}
-
-.summary-card {
-  padding: 20rpx;
-  border-radius: 16rpx;
-  background: rgba(255, 255, 255, 0.8);
-}
-
-.summary-label {
-  display: block;
-  font-size: 22rpx;
-  color: #64748B;
-  margin-bottom: 8rpx;
-}
-
-.summary-value {
-  font-size: 28rpx;
-  font-weight: 700;
-  color: #0F172A;
 }
 
 .formula-row + .formula-row {

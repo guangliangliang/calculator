@@ -1,7 +1,8 @@
 <script setup>
+import { computed } from 'vue'
 import { formatValue } from '@/utils/formatter.js'
 
-defineProps({
+const props = defineProps({
   calculator: {
     type: Object,
     required: true
@@ -11,72 +12,42 @@ defineProps({
     required: true
   }
 })
+
+const visibleOutputs = computed(() => props.calculator.outputs || [])
+const primaryOutput = computed(() => visibleOutputs.value[0] || null)
+const secondaryOutputs = computed(() => visibleOutputs.value.slice(1))
+
+function getOutputValue(output) {
+  return formatValue(props.results[output.key], output.format, output.precision)
+}
 </script>
 
 <template>
-  <view class="result-section card">
-    <view class="section-title">计算结果</view>
-    <view class="result-list">
-      <view class="result-item" v-for="output in calculator.outputs" :key="output.key">
-        <text class="result-label">{{ output.label }}</text>
-        <text class="result-value">
-          {{ formatValue(results[output.key], output.format, output.precision) }}
-          <text v-if="output.unit" class="result-unit">{{ output.unit }}</text>
+  <view class="result-panel result-panel-indigo card">
+    <view class="result-header">
+      <view>
+        <text class="result-kicker">核心结果</text>
+        <text class="result-title">计算结果</text>
+      </view>
+      <text class="result-badge">{{ visibleOutputs.length }}项</text>
+    </view>
+
+    <view class="result-hero-block" v-if="primaryOutput">
+      <text class="result-hero-label">{{ primaryOutput.label }}</text>
+      <text class="result-hero-value">
+        {{ getOutputValue(primaryOutput) }}
+        <text v-if="primaryOutput.unit" class="metric-unit">{{ primaryOutput.unit }}</text>
+      </text>
+    </view>
+
+    <view class="metric-grid" v-if="secondaryOutputs.length">
+      <view class="metric-card" v-for="output in secondaryOutputs" :key="output.key">
+        <text class="metric-label">{{ output.label }}</text>
+        <text class="metric-value">
+          {{ getOutputValue(output) }}
+          <text v-if="output.unit" class="metric-unit">{{ output.unit }}</text>
         </text>
       </view>
     </view>
   </view>
 </template>
-
-<style scoped>
-.result-section {
-  padding: 28rpx;
-  margin-bottom: 24rpx;
-  background: #F0FDF4;
-  border-radius: 20rpx;
-  border: 2rpx solid #D1FAE5;
-}
-
-.section-title {
-  font-size: 28rpx;
-  font-weight: 600;
-  color: #0F172A;
-  margin-bottom: 22rpx;
-}
-
-.result-list {
-  display: flex;
-  flex-direction: column;
-  gap: 18rpx;
-}
-
-.result-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 20rpx 0;
-  border-bottom: 1rpx solid rgba(16, 185, 129, 0.1);
-}
-
-.result-item:last-child {
-  border-bottom: none;
-}
-
-.result-label {
-  font-size: 28rpx;
-  color: #4A5568;
-}
-
-.result-value {
-  font-size: 34rpx;
-  font-weight: 600;
-  color: #059669;
-}
-
-.result-unit {
-  font-size: 26rpx;
-  margin-left: 8rpx;
-  color: #10B981;
-  opacity: 0.8;
-}
-</style>
