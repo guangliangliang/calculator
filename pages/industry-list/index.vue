@@ -1,15 +1,12 @@
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref } from 'vue'
+import { onLoad } from '@dcloudio/uni-app'
 import { getCalculatorsByIndustry, industries } from '@/utils/calculator-config.js'
 
 const industryInfo = ref(null)
 const calculatorList = ref([])
 
-onMounted(() => {
-  const pages = getCurrentPages()
-  const currentPage = pages[pages.length - 1]
-  const options = currentPage.options
-
+onLoad((options) => {
   if (!options.industryId) return
 
   industryInfo.value = industries.find(item => item.id === options.industryId) || null

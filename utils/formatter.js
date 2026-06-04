@@ -2,6 +2,8 @@ function isInvalidNumber(value) {
   return !Number.isFinite(Number(value))
 }
 
+let scheduleDetailMemoryCache = null
+
 function formatWithPrecision(value, precision = 2) {
   return Number(value).toFixed(precision)
 }
@@ -65,6 +67,7 @@ export function getHistory() {
 }
 
 export function saveScheduleDetail(detail) {
+  scheduleDetailMemoryCache = detail
   try {
     uni.setStorageSync('calcScheduleDetail', detail)
   } catch (error) {
@@ -73,8 +76,14 @@ export function saveScheduleDetail(detail) {
 }
 
 export function getScheduleDetail() {
+  if (scheduleDetailMemoryCache) return scheduleDetailMemoryCache
+
   try {
-    return uni.getStorageSync('calcScheduleDetail') || null
+    const storedDetail = uni.getStorageSync('calcScheduleDetail') || null
+    if (storedDetail) {
+      scheduleDetailMemoryCache = storedDetail
+    }
+    return storedDetail
   } catch (error) {
     return null
   }
