@@ -188,113 +188,154 @@ function copyResults() {
 </script>
 
 <template>
-  <view class="page-container calculator-page" v-if="calculator">
-    <view class="calculator-hero card">
-      <view class="calculator-icon-wrap">
-        <text class="calculator-icon">{{ calculator.icon }}</text>
-      </view>
-      <view class="calculator-meta">
-        <text class="calculator-title">{{ calculator.name }}</text>
-        <text class="calculator-desc">{{ calculator.description }}</text>
-      </view>
-    </view>
-
-    <view class="input-section card">
-      <view class="section-title">请输入信息</view>
-
-      <view class="input-item" v-for="input in calculator.inputs" :key="input.key">
-        <view class="input-label">
-          <text v-if="input.required !== false" class="required-mark">*</text>
-          {{ input.label }}
-          <text v-if="input.required === false" class="optional-tag">选填</text>
+  <view class="page-shell">
+    <scroll-view class="content-scroll" scroll-y enhanced show-scrollbar="{{false}}">
+      <view class="page-container calculator-page" v-if="calculator">
+        <view class="calculator-hero card">
+          <view class="calculator-icon-wrap">
+            <text class="calculator-icon">{{ calculator.icon }}</text>
+          </view>
+          <view class="calculator-meta">
+            <text class="calculator-title">{{ calculator.name }}</text>
+            <text class="calculator-desc">{{ calculator.description }}</text>
+          </view>
         </view>
 
-        <view class="input-wrapper" :class="{ 'input-wrapper-error': hasFieldError(input.key) }" v-if="input.type === 'select'">
-          <picker
-            mode="selector"
-            :range="input.options.map(option => option.label)"
-            @change="event => handleSelectChange(event, input)"
-          >
-            <view class="picker-value" :class="{ 'placeholder-text': !inputs[input.key] }">
-              {{ getSelectDisplay(input) }}
+        <view class="input-section card">
+          <view class="section-title">请输入信息</view>
+
+          <view class="input-item" v-for="input in calculator.inputs" :key="input.key">
+            <view class="input-label">
+              <text v-if="input.required !== false" class="required-mark">*</text>
+              {{ input.label }}
+              <text v-if="input.required === false" class="optional-tag">选填</text>
             </view>
-          </picker>
+
+            <view class="input-wrapper" :class="{ 'input-wrapper-error': hasFieldError(input.key) }" v-if="input.type === 'select'">
+              <picker
+                mode="selector"
+                :range="input.options.map(option => option.label)"
+                @change="event => handleSelectChange(event, input)"
+              >
+                <view class="picker-value" :class="{ 'placeholder-text': !inputs[input.key] }">
+                  {{ getSelectDisplay(input) }}
+                </view>
+              </picker>
+            </view>
+
+            <view class="input-wrapper" :class="{ 'input-wrapper-error': hasFieldError(input.key) }" v-else>
+              <input
+                class="input-field"
+                type="digit"
+                inputmode="decimal"
+                :placeholder="input.placeholder"
+                :value="inputs[input.key]"
+                @input="event => updateInputValue(input.key, event.detail.value)"
+              />
+              <text v-if="input.unit" class="input-unit">{{ input.unit }}</text>
+            </view>
+
+            <text v-if="fieldErrors[input.key]" class="error-text">{{ fieldErrors[input.key] }}</text>
+          </view>
+
+          <view class="button-group">
+            <button class="btn-reset" @click="reset">重置</button>
+            <button class="btn-calculate" @click="calculate">计算</button>
+          </view>
         </view>
 
-        <view class="input-wrapper" :class="{ 'input-wrapper-error': hasFieldError(input.key) }" v-else>
-          <input
-            class="input-field"
-            type="digit"
-            inputmode="decimal"
-            :placeholder="input.placeholder"
-            :value="inputs[input.key]"
-            @input="event => updateInputValue(input.key, event.detail.value)"
+        <block v-if="results">
+          <view class="result-actions card">
+            <text class="result-actions-title">计算结果</text>
+            <button class="btn-copy" @click="copyResults">复制结果</button>
+          </view>
+
+          <MortgageResultPanel
+            v-if="calculator.resultRenderer === 'mortgage'"
+            :results="results"
+            @view-schedule="openScheduleDetail"
           />
-          <text v-if="input.unit" class="input-unit">{{ input.unit }}</text>
-        </view>
-
-        <text v-if="fieldErrors[input.key]" class="error-text">{{ fieldErrors[input.key] }}</text>
+          <CarLoanResultPanel
+            v-else-if="calculator.resultRenderer === 'car-loan'"
+            :results="results"
+            @view-schedule="openScheduleDetail"
+          />
+          <CreditCardResultPanel
+            v-else-if="calculator.resultRenderer === 'credit-card'"
+            :results="results"
+            @view-schedule="openScheduleDetail"
+          />
+          <TaxResultPanel
+            v-else-if="calculator.resultRenderer === 'tax'"
+            :results="results"
+          />
+          <RenovationBudgetResultPanel
+            v-else-if="calculator.resultRenderer === 'renovation-budget'"
+            :results="results"
+          />
+          <EoqResultPanel
+            v-else-if="calculator.resultRenderer === 'eoq'"
+            :results="results"
+          />
+          <DefaultResultPanel
+            v-else
+            :calculator="calculator"
+            :results="results"
+          />
+        </block>
       </view>
-
-      <view class="button-group">
-        <button class="btn-reset" @click="reset">重置</button>
-        <button class="btn-calculate" @click="calculate">计算</button>
-      </view>
-    </view>
-
-    <block v-if="results">
-      <view class="result-actions card">
-        <text class="result-actions-title">计算结果</text>
-        <button class="btn-copy" @click="copyResults">复制结果</button>
-      </view>
-
-      <MortgageResultPanel
-        v-if="calculator.resultRenderer === 'mortgage'"
-        :results="results"
-        @view-schedule="openScheduleDetail"
-      />
-      <CarLoanResultPanel
-        v-else-if="calculator.resultRenderer === 'car-loan'"
-        :results="results"
-        @view-schedule="openScheduleDetail"
-      />
-      <CreditCardResultPanel
-        v-else-if="calculator.resultRenderer === 'credit-card'"
-        :results="results"
-        @view-schedule="openScheduleDetail"
-      />
-      <TaxResultPanel
-        v-else-if="calculator.resultRenderer === 'tax'"
-        :results="results"
-      />
-      <RenovationBudgetResultPanel
-        v-else-if="calculator.resultRenderer === 'renovation-budget'"
-        :results="results"
-      />
-      <EoqResultPanel
-        v-else-if="calculator.resultRenderer === 'eoq'"
-        :results="results"
-      />
-      <DefaultResultPanel
-        v-else
-        :calculator="calculator"
-        :results="results"
-      />
-    </block>
+    </scroll-view>
   </view>
 </template>
 
+<style>
+page {
+  height: 100%;
+  overflow: hidden;
+}
+</style>
+
 <style scoped>
+.page-shell {
+  height: 100%;
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.content-scroll {
+  flex: 1;
+  height: 0;
+  overflow-y: auto;
+}
+
 .calculator-page {
-  padding-top: 24rpx;
+  padding: 24rpx 0;
+}
+
+.calculator-hero {
+  margin: 0 30rpx 22rpx;
+}
+
+.input-section {
+  margin: 0 30rpx 24rpx;
+}
+
+.result-actions {
+  margin: 0 30rpx 12rpx;
+}
+
+.calculator-hero,
+.input-section,
+.result-actions {
+  padding: 26rpx 28rpx;
 }
 
 .calculator-hero {
   display: flex;
   align-items: center;
   gap: 22rpx;
-  margin-bottom: 22rpx;
-  padding: 26rpx;
   background: linear-gradient(135deg, #FFFFFF 0%, #F8FAFC 100%);
 }
 
@@ -335,8 +376,6 @@ function copyResults() {
 }
 
 .input-section {
-  padding: 28rpx;
-  margin-bottom: 24rpx;
   background: #FFFFFF;
 }
 
@@ -461,8 +500,6 @@ function copyResults() {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 16rpx 24rpx;
-  margin-bottom: 12rpx;
 }
 
 .result-actions-title {
