@@ -27,15 +27,17 @@
     },
     "quickapp" : {},
     "mp-weixin" : {
-        "appid" : "wx9afbe28f87488d2f",
+        "appid" : "wx9ccf0545ad4f018e",
         "setting" : {
             "urlCheck" : false,
             "es6" : true,
-            "enhance" : true,
+            "enhance" : false,
             "postcss" : true,
             "minified" : true
         },
         "usingComponents" : true,
+        "lazyCodeLoading" : "requiredComponents",
+        "libVersion" : "3.15.2",
         "permission" : {}
     },
     "mp-alipay" : {
