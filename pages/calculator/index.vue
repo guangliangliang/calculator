@@ -1,8 +1,8 @@
 <script setup>
-import { ref } from 'vue'
+import { ref, defineAsyncComponent } from 'vue'
 import { onLoad } from '@dcloudio/uni-app'
 import { getCalculatorById } from '@/utils/calculator-config.js'
-import { saveHistory, saveScheduleDetail } from '@/utils/formatter.js'
+import { saveHistory, saveScheduleDetail, formatValue } from '@/utils/formatter.js'
 import {
   buildCalculationPayload,
   getInputErrorMessage,
@@ -10,18 +10,20 @@ import {
   getSelectLabel,
   validateCalculatorInputs
 } from '@/utils/calculator-form.js'
-import DefaultResultPanel from '@/pages/calculator/components/DefaultResultPanel.vue'
-import MortgageResultPanel from '@/pages/calculator/components/MortgageResultPanel.vue'
-import CarLoanResultPanel from '@/pages/calculator/components/CarLoanResultPanel.vue'
-import CreditCardResultPanel from '@/pages/calculator/components/CreditCardResultPanel.vue'
-import TaxResultPanel from '@/pages/calculator/components/TaxResultPanel.vue'
-import RenovationBudgetResultPanel from '@/pages/calculator/components/RenovationBudgetResultPanel.vue'
-import EoqResultPanel from '@/pages/calculator/components/EoqResultPanel.vue'
+
+const DefaultResultPanel = defineAsyncComponent(() => import('@/pages/calculator/components/DefaultResultPanel.vue'))
+const MortgageResultPanel = defineAsyncComponent(() => import('@/pages/calculator/components/MortgageResultPanel.vue'))
+const CarLoanResultPanel = defineAsyncComponent(() => import('@/pages/calculator/components/CarLoanResultPanel.vue'))
+const CreditCardResultPanel = defineAsyncComponent(() => import('@/pages/calculator/components/CreditCardResultPanel.vue'))
+const TaxResultPanel = defineAsyncComponent(() => import('@/pages/calculator/components/TaxResultPanel.vue'))
+const RenovationBudgetResultPanel = defineAsyncComponent(() => import('@/pages/calculator/components/RenovationBudgetResultPanel.vue'))
+const EoqResultPanel = defineAsyncComponent(() => import('@/pages/calculator/components/EoqResultPanel.vue'))
 
 const calculator = ref(null)
 const inputs = ref({})
 const results = ref(null)
 const fieldErrors = ref({})
+const debounceTimer = ref(null)
 
 onLoad((options) => {
   if (!options.id) return
@@ -42,7 +44,11 @@ function updateInputValue(key, value) {
   }
 
   clearFieldError(key)
-  validateSingleField(key)
+
+  if (debounceTimer.value) clearTimeout(debounceTimer.value)
+  debounceTimer.value = setTimeout(() => {
+    validateSingleField(key)
+  }, 300)
 }
 
 function handleSelectChange(event, input) {
@@ -129,10 +135,53 @@ function openScheduleDetail() {
   saveScheduleDetail(scheduleDetail)
 
   uni.navigateTo({
-    url: `/pages/schedule-detail/index?calculatorId=${calculator.value.id}`
-    ,
+    url: `/pages/schedule-detail/index?calculatorId=${calculator.value.id}`,
     success: (res) => {
       res.eventChannel?.emit?.('scheduleDetail', scheduleDetail)
+    }
+  })
+}
+
+function formatResultsToText() {
+  if (!calculator.value || !results.value) return ''
+
+  let text = `${calculator.value.name}\n`
+  text += `计算时间：${new Date().toLocaleString()}\n\n`
+  text += `【输入参数】\n`
+
+  for (const input of calculator.value.inputs) {
+    const value = inputs.value[input.key]
+    if (value !== '' && value !== null && value !== undefined) {
+      text += `${input.label}：${value}${input.unit || ''}\n`
+    }
+  }
+
+  text += `\n【计算结果】\n`
+
+  for (const [key, value] of Object.entries(results.value)) {
+    if (key !== 'schedule') {
+      text += `${key}：${value}\n`
+    }
+  }
+
+  return text
+}
+
+function copyResults() {
+  if (!results.value) {
+    uni.showToast({ title: '暂无可复制的结果', icon: 'none' })
+    return
+  }
+
+  const text = formatResultsToText()
+
+  uni.setClipboardData({
+    data: text,
+    success: () => {
+      uni.showToast({ title: '已复制到剪贴板', icon: 'success' })
+    },
+    fail: () => {
+      uni.showToast({ title: '复制失败', icon: 'none' })
     }
   })
 }
@@ -176,6 +225,7 @@ function openScheduleDetail() {
           <input
             class="input-field"
             type="digit"
+            inputmode="decimal"
             :placeholder="input.placeholder"
             :value="inputs[input.key]"
             @input="event => updateInputValue(input.key, event.detail.value)"
@@ -193,6 +243,11 @@ function openScheduleDetail() {
     </view>
 
     <block v-if="results">
+      <view class="result-actions card">
+        <text class="result-actions-title">计算结果</text>
+        <button class="btn-copy" @click="copyResults">复制结果</button>
+      </view>
+
       <MortgageResultPanel
         v-if="calculator.resultRenderer === 'mortgage'"
         :results="results"
@@ -402,4 +457,30 @@ function openScheduleDetail() {
   border: none;
 }
 
+.result-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16rpx 24rpx;
+  margin-bottom: 12rpx;
+}
+
+.result-actions-title {
+  font-size: 26rpx;
+  font-weight: 600;
+  color: #0F172A;
+}
+
+.btn-copy {
+  padding: 12rpx 24rpx;
+  font-size: 24rpx;
+  color: #6366F1;
+  background: #EEF2FF;
+  border-radius: 20rpx;
+  border: none;
+}
+
+.btn-copy::after {
+  border: none;
+}
 </style>

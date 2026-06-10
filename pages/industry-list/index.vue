@@ -38,15 +38,19 @@ function goToCalculator(calculator) {
       </view>
     </view>
 
-    <scroll-view class="content-scroll" scroll-y>
+    <scroll-view class="content-scroll" scroll-y enhanced show-scrollbar="{{false}}">
       <view class="container content-shell">
-        <view class="calculator-grid list-stack">
+        <view v-if="!calculatorList.length" class="empty-state">
+          <text class="empty-text">暂无计算器</text>
+        </view>
+
+        <view v-else class="calculator-grid list-stack">
           <view
             v-for="calculator in calculatorList"
             :key="calculator.id"
             class="calculator-item card tap-card"
             :style="{ borderLeftColor: industryInfo && industryInfo.color ? industryInfo.color : '#6366F1' }"
-            hover-class="calculator-item-hover"
+            hover-class="tap-card-hover"
             @click="goToCalculator(calculator)"
           >
             <view class="calc-icon-bg">
@@ -56,13 +60,20 @@ function goToCalculator(calculator) {
               <text class="calc-name">{{ calculator.name }}</text>
               <text class="calc-desc">{{ calculator.description }}</text>
             </view>
-            <view class="calc-arrow">›</view>
+            <text class="calc-arrow">＞</text>
           </view>
         </view>
       </view>
     </scroll-view>
   </view>
 </template>
+
+<style>
+page {
+  height: 100%;
+  overflow: hidden;
+}
+</style>
 
 <style scoped>
 .page-shell {
@@ -82,7 +93,7 @@ function goToCalculator(calculator) {
   flex: 0 0 auto;
   padding-top: 24rpx;
   padding-bottom: 12rpx;
-  background: #F6F8FB;
+  background: linear-gradient(180deg, #F6F8FB 0%, #F6F8FB 100%);
   position: relative;
   z-index: 2;
 }
@@ -90,16 +101,24 @@ function goToCalculator(calculator) {
 .content-scroll {
   flex: 1;
   height: 0;
-}
-
-page {
-  height: 100%;
-  overflow: hidden;
+  overflow-y: auto;
 }
 
 .content-shell {
   padding-top: 8rpx;
   padding-bottom: calc(34rpx + env(safe-area-inset-bottom));
+}
+
+.empty-state {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 200rpx 0;
+}
+
+.empty-text {
+  font-size: 26rpx;
+  color: #94A3B8;
 }
 
 .header-card {
@@ -188,8 +207,13 @@ page {
 
 .calc-arrow {
   margin-left: 14rpx;
-  font-size: 34rpx;
+  font-size: 30rpx;
   color: #A0AEC0;
-  font-weight: 300;
+  font-weight: 400;
+}
+
+.tap-card-hover {
+  opacity: 0.85;
+  transform: scale(0.985);
 }
 </style>
