@@ -179,6 +179,9 @@ function formatResultsToText() {
     'beforeTax': '税前',
     
     // 餐饮/零售
+    'salePrice': '售价',
+    'sellingPrice': '售价',
+    'price': '价格',
     'grossProfit': '毛利',
     'grossProfitRate': '毛利率',
     'netProfit': '净利',
