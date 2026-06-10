@@ -3,6 +3,9 @@ import uni from '@dcloudio/vite-plugin-uni'
 import { fileURLToPath, URL } from 'node:url'
 
 export default defineConfig({
+  define: {
+    __UNI_PRELOAD_SHADOW_IMAGE__: '""'
+  },
   plugins: [uni()],
   resolve: {
     alias: {

@@ -14,6 +14,25 @@ function addThousands(value) {
   return decimal === undefined ? formattedInteger : `${formattedInteger}.${decimal}`
 }
 
+function padDatePart(value) {
+  return String(value).padStart(2, '0')
+}
+
+export function formatDateTime(date = new Date()) {
+  const current = date instanceof Date ? date : new Date(date)
+
+  if (Number.isNaN(current.getTime())) return ''
+
+  const year = current.getFullYear()
+  const month = padDatePart(current.getMonth() + 1)
+  const day = padDatePart(current.getDate())
+  const hour = padDatePart(current.getHours())
+  const minute = padDatePart(current.getMinutes())
+  const second = padDatePart(current.getSeconds())
+
+  return `${year}-${month}-${day} ${hour}:${minute}:${second}`
+}
+
 export function formatCurrency(value, precision = 2) {
   if (value === null || value === undefined || isInvalidNumber(value)) return '-'
   return addThousands(formatWithPrecision(value, precision))

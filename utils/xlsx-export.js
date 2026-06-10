@@ -1,3 +1,5 @@
+import { formatDateTime } from '@/utils/formatter.js'
+
 const CRC32_TABLE = (() => {
   const table = new Uint32Array(256)
 
@@ -16,11 +18,53 @@ const CRC32_TABLE = (() => {
 
 function getEncoder() {
   if (typeof TextEncoder !== 'undefined') return new TextEncoder()
-  throw new Error('当前环境不支持 TextEncoder')
+  return null
+}
+
+function encodeUtf8Fallback(content) {
+  const bytes = []
+  const text = String(content)
+
+  for (let index = 0; index < text.length; index += 1) {
+    let codePoint = text.charCodeAt(index)
+
+    if (codePoint >= 0xD800 && codePoint <= 0xDBFF && index + 1 < text.length) {
+      const next = text.charCodeAt(index + 1)
+      if (next >= 0xDC00 && next <= 0xDFFF) {
+        codePoint = 0x10000 + ((codePoint - 0xD800) << 10) + (next - 0xDC00)
+        index += 1
+      }
+    }
+
+    if (codePoint <= 0x7F) {
+      bytes.push(codePoint)
+    } else if (codePoint <= 0x7FF) {
+      bytes.push(
+        0xC0 | (codePoint >> 6),
+        0x80 | (codePoint & 0x3F)
+      )
+    } else if (codePoint <= 0xFFFF) {
+      bytes.push(
+        0xE0 | (codePoint >> 12),
+        0x80 | ((codePoint >> 6) & 0x3F),
+        0x80 | (codePoint & 0x3F)
+      )
+    } else {
+      bytes.push(
+        0xF0 | (codePoint >> 18),
+        0x80 | ((codePoint >> 12) & 0x3F),
+        0x80 | ((codePoint >> 6) & 0x3F),
+        0x80 | (codePoint & 0x3F)
+      )
+    }
+  }
+
+  return new Uint8Array(bytes)
 }
 
 function encodeText(content) {
-  return getEncoder().encode(content)
+  const encoder = getEncoder()
+  return encoder ? encoder.encode(content) : encodeUtf8Fallback(content)
 }
 
 function escapeXml(value) {
@@ -211,7 +255,7 @@ function buildWorkbookRows(detail) {
   const { calculatorName, results } = detail
   const rows = [
     [`${calculatorName}还款明细`],
-    ['导出时间', new Date().toLocaleString()],
+    ['导出时间', formatDateTime()],
     ['还款期数', results.months],
     ['还款总额(元)', Number(results.totalPayment?.toFixed?.(2) || results.totalPayment || 0)],
     ['总利息/手续费(元)', Number(
@@ -361,6 +405,24 @@ export function buildScheduleFileName(calculatorName) {
   return sanitizeFileName(`${calculatorName}还款明细_${dateText}.xlsx`)
 }
 
+function getMiniProgramFileApi() {
+  const candidates = []
+
+  if (typeof globalThis !== 'undefined') {
+    candidates.push(globalThis.wx, globalThis.uni)
+  }
+
+  if (typeof wx !== 'undefined') candidates.push(wx)
+  if (typeof uni !== 'undefined') candidates.push(uni)
+
+  return candidates.find(api => (
+    api &&
+    typeof api.getFileSystemManager === 'function' &&
+    typeof api.openDocument === 'function' &&
+    api.env?.USER_DATA_PATH
+  ))
+}
+
 export function downloadXlsxFile(arrayBuffer, fileName) {
   if (typeof window !== 'undefined' && typeof document !== 'undefined') {
     const blob = new Blob([arrayBuffer], {
@@ -375,17 +437,17 @@ export function downloadXlsxFile(arrayBuffer, fileName) {
     return Promise.resolve({ fileName })
   }
 
-  if (typeof wx !== 'undefined' && wx.getFileSystemManager) {
+  const miniProgramApi = getMiniProgramFileApi()
+  if (miniProgramApi) {
     return new Promise((resolve, reject) => {
-      const filePath = `${wx.env.USER_DATA_PATH}/${fileName}`
-      const fs = wx.getFileSystemManager()
+      const filePath = `${miniProgramApi.env.USER_DATA_PATH}/${fileName}`
+      const fs = miniProgramApi.getFileSystemManager()
 
       fs.writeFile({
         filePath,
         data: arrayBuffer,
-        encoding: 'binary',
         success: () => {
-          wx.openDocument({
+          miniProgramApi.openDocument({
             filePath,
             fileType: 'xlsx',
             showMenu: true,
@@ -398,5 +460,5 @@ export function downloadXlsxFile(arrayBuffer, fileName) {
     })
   }
 
-  return Promise.reject(new Error('当前平台暂不支持导出 XLSX'))
+  return Promise.reject(new Error('未检测到微信文件系统 API，请重新构建后用微信开发者工具或真机预览测试'))
 }

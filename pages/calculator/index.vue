@@ -1,8 +1,15 @@
 <script setup>
-import { ref, defineAsyncComponent } from 'vue'
+import { ref } from 'vue'
 import { onLoad } from '@dcloudio/uni-app'
 import { getCalculatorById } from '@/utils/calculator-config.js'
-import { saveHistory, saveScheduleDetail, formatValue } from '@/utils/formatter.js'
+import { saveHistory, saveScheduleDetail, formatDateTime, formatValue } from '@/utils/formatter.js'
+import DefaultResultPanel from '@/pages/calculator/components/DefaultResultPanel.vue'
+import MortgageResultPanel from '@/pages/calculator/components/MortgageResultPanel.vue'
+import CarLoanResultPanel from '@/pages/calculator/components/CarLoanResultPanel.vue'
+import CreditCardResultPanel from '@/pages/calculator/components/CreditCardResultPanel.vue'
+import TaxResultPanel from '@/pages/calculator/components/TaxResultPanel.vue'
+import RenovationBudgetResultPanel from '@/pages/calculator/components/RenovationBudgetResultPanel.vue'
+import EoqResultPanel from '@/pages/calculator/components/EoqResultPanel.vue'
 import {
   buildCalculationPayload,
   getInputErrorMessage,
@@ -10,14 +17,6 @@ import {
   getSelectLabel,
   validateCalculatorInputs
 } from '@/utils/calculator-form.js'
-
-const DefaultResultPanel = defineAsyncComponent(() => import('@/pages/calculator/components/DefaultResultPanel.vue'))
-const MortgageResultPanel = defineAsyncComponent(() => import('@/pages/calculator/components/MortgageResultPanel.vue'))
-const CarLoanResultPanel = defineAsyncComponent(() => import('@/pages/calculator/components/CarLoanResultPanel.vue'))
-const CreditCardResultPanel = defineAsyncComponent(() => import('@/pages/calculator/components/CreditCardResultPanel.vue'))
-const TaxResultPanel = defineAsyncComponent(() => import('@/pages/calculator/components/TaxResultPanel.vue'))
-const RenovationBudgetResultPanel = defineAsyncComponent(() => import('@/pages/calculator/components/RenovationBudgetResultPanel.vue'))
-const EoqResultPanel = defineAsyncComponent(() => import('@/pages/calculator/components/EoqResultPanel.vue'))
 
 const calculator = ref(null)
 const inputs = ref({})
@@ -475,7 +474,7 @@ function formatResultsToText() {
   }
 
   let text = `${calculator.value.name}\n`
-  text += `计算时间：${new Date().toLocaleString()}\n\n`
+  text += `计算时间：${formatDateTime()}\n\n`
   text += `【输入参数】\n`
 
   for (const input of calculator.value.inputs) {
@@ -840,6 +839,8 @@ page {
 }
 
 .btn-copy {
+  width: auto;
+  margin: 0 0 0 auto;
   padding: 12rpx 24rpx;
   font-size: 24rpx;
   color: #6366F1;

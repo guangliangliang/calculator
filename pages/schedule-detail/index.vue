@@ -134,7 +134,12 @@ async function exportSchedule() {
     uni.showToast({ title: '导出成功', icon: 'success' })
   } catch (error) {
     console.error('导出 XLSX 失败', error)
-    uni.showToast({ title: '当前平台暂不支持导出', icon: 'none' })
+    const message = error?.errMsg || error?.message || '导出失败，请稍后重试'
+    uni.showModal({
+      title: '导出失败',
+      content: message,
+      showCancel: false
+    })
   } finally {
     exporting.value = false
   }
