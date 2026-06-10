@@ -145,6 +145,89 @@ function openScheduleDetail() {
 function formatResultsToText() {
   if (!calculator.value || !results.value) return ''
 
+  const keyMap = {
+    // 通用
+    'result': '结果',
+    'total': '总计',
+    'average': '平均值',
+    
+    // 金融/贷款
+    'loanAmount': '贷款金额',
+    'downPayment': '首付',
+    'monthlyPayment': '月供',
+    'firstMonthPayment': '首月月供',
+    'totalPayment': '总还款',
+    'totalInterest': '总利息',
+    'interestRate': '利率',
+    'months': '期数',
+    'years': '年数',
+    'repaymentMode': '还款方式',
+    'remainingPrincipal': '剩余本金',
+    'monthlyDecrease': '每月递减',
+    
+    // 信用卡
+    'creditCard': '信用卡',
+    'totalFee': '总手续费',
+    'monthlyFee': '每期手续费',
+    
+    // 税务
+    'tax': '税',
+    'taxAmount': '税额',
+    'taxRate': '税率',
+    'afterTax': '税后',
+    'beforeTax': '税前',
+    
+    // 餐饮/零售
+    'grossProfit': '毛利',
+    'grossProfitRate': '毛利率',
+    'netProfit': '净利',
+    'profit': '利润',
+    'profitRate': '利润率',
+    'turnoverRate': '周转率',
+    'inventoryTurnover': '库存周转',
+    'breakEven': '盈亏平衡',
+    'paybackPeriod': '回收期',
+    
+    // 建筑
+    'area': '面积',
+    'volume': '体积',
+    'materialCost': '材料成本',
+    'totalCost': '总成本',
+    'duration': '工期',
+    'tiles': '瓷砖',
+    'tilesCount': '瓷砖数量',
+    'paint': '涂料',
+    'paintAmount': '涂料用量',
+    'cement': '水泥',
+    'sand': '沙子',
+    'bricks': '砖块',
+    
+    // 农业
+    'pesticide': '农药',
+    'fertilizer': '肥料',
+    'seeds': '种子',
+    'plantingDensity': '种植密度',
+    'irrigation': '灌溉',
+    'cropYield': '作物产量',
+    
+    // 物流
+    'volumetricWeight': '体积重',
+    'freightCost': '运费',
+    'truckload': '整车',
+    'ltl': '零担',
+    'fuelCost': '油费',
+    'container': '集装箱',
+    
+    // 人力
+    'afterTaxSalary': '税后工资',
+    'socialSecurity': '社保',
+    'housingFund': '公积金',
+    'overtimePay': '加班费',
+    'annualBonusTax': '年终奖税',
+    'companyLaborCost': '企业用工成本',
+    'attendanceDeduction': '考勤扣款'
+  }
+
   let text = `${calculator.value.name}\n`
   text += `计算时间：${new Date().toLocaleString()}\n\n`
   text += `【输入参数】\n`
@@ -160,7 +243,8 @@ function formatResultsToText() {
 
   for (const [key, value] of Object.entries(results.value)) {
     if (key !== 'schedule') {
-      text += `${key}：${value}\n`
+      const label = keyMap[key] || key
+      text += `${label}：${value}\n`
     }
   }
 
