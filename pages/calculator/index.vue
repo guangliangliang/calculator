@@ -239,8 +239,19 @@ function formatResultsToText() {
   text += `【输入参数】\n`
 
   for (const input of calculator.value.inputs) {
-    const value = inputs.value[input.key]
+    let value = inputs.value[input.key]
     if (value !== '' && value !== null && value !== undefined) {
+      // 如果是 select 类型，找到对应的中文显示
+      if (input.type === 'select' && input.options) {
+        const option = input.options.find(opt => opt.value === value)
+        if (option) {
+          value = option.label
+        }
+      }
+      // 如果不是 select，检查值翻译表
+      else if (valueMap[value] !== undefined) {
+        value = valueMap[value]
+      }
       text += `${input.label}：${value}${input.unit || ''}\n`
     }
   }
