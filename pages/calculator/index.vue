@@ -234,17 +234,8 @@ function formatResultsToText() {
   // 格式化数值
   function formatNumber(num) {
     if (typeof num === 'number' && !Number.isNaN(num)) {
-      // 如果是整数，直接返回
-      if (Number.isInteger(num)) return num.toString()
-      // 如果是小数，保留2-4位小数（取决于精度）
-      const str = num.toString()
-      if (str.includes('.')) {
-        const decimals = str.split('.')[1].length
-        if (decimals <= 2) return num.toFixed(2)
-        if (decimals <= 4) return num.toFixed(4)
-        return num.toFixed(4)
-      }
-      return num.toString()
+      // 所有数值都保留两位小数
+      return num.toFixed(2)
     }
     return num
   }
