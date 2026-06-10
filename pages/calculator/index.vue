@@ -195,12 +195,6 @@ function formatResultsToText() {
     // 建筑
     'area': '面积',
     'volume': '体积',
-    'materialCost': '材料成本',
-    'totalCost': '总成本',
-    'duration': '工期',
-    'tiles': '瓷砖',
-    'tilesCount': '瓷砖数量',
-    'paint': '涂料',
     'paintAmount': '涂料用量',
     'cement': '水泥',
     'sand': '沙子',
@@ -237,6 +231,24 @@ function formatResultsToText() {
     'equal-principal': '等额本金'
   }
 
+  // 格式化数值
+  function formatNumber(num) {
+    if (typeof num === 'number' && !Number.isNaN(num)) {
+      // 如果是整数，直接返回
+      if (Number.isInteger(num)) return num.toString()
+      // 如果是小数，保留2-4位小数（取决于精度）
+      const str = num.toString()
+      if (str.includes('.')) {
+        const decimals = str.split('.')[1].length
+        if (decimals <= 2) return num.toFixed(2)
+        if (decimals <= 4) return num.toFixed(4)
+        return num.toFixed(4)
+      }
+      return num.toString()
+    }
+    return num
+  }
+
   let text = `${calculator.value.name}\n`
   text += `计算时间：${new Date().toLocaleString()}\n\n`
   text += `【输入参数】\n`
@@ -264,7 +276,8 @@ function formatResultsToText() {
   for (const [key, value] of Object.entries(results.value)) {
     if (key !== 'schedule') {
       const label = keyMap[key] || key
-      const displayValue = valueMap[value] !== undefined ? valueMap[value] : value
+      let displayValue = valueMap[value] !== undefined ? valueMap[value] : value
+      displayValue = formatNumber(displayValue)
       text += `${label}：${displayValue}\n`
     }
   }
