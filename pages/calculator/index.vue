@@ -150,6 +150,7 @@ function formatResultsToText() {
     'result': '结果',
     'total': '总计',
     'average': '平均值',
+    'principal': '本金',
     
     // 金融/贷款
     'loanAmount': '贷款金额',
@@ -228,6 +229,11 @@ function formatResultsToText() {
     'attendanceDeduction': '考勤扣款'
   }
 
+  const valueMap = {
+    'equal-payment': '等额本息',
+    'equal-principal': '等额本金'
+  }
+
   let text = `${calculator.value.name}\n`
   text += `计算时间：${new Date().toLocaleString()}\n\n`
   text += `【输入参数】\n`
@@ -244,7 +250,8 @@ function formatResultsToText() {
   for (const [key, value] of Object.entries(results.value)) {
     if (key !== 'schedule') {
       const label = keyMap[key] || key
-      text += `${label}：${value}\n`
+      const displayValue = valueMap[value] !== undefined ? valueMap[value] : value
+      text += `${label}：${displayValue}\n`
     }
   }
 
