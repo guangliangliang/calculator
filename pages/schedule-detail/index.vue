@@ -7,11 +7,17 @@ import { buildScheduleFileName, buildScheduleXlsx, downloadXlsxFile } from '@/ut
 
 const detail = ref(null)
 const exporting = ref(false)
+const loading = ref(true)
 const pageInstance = getCurrentInstance()
+
+const BATCH_SIZE = 50
+const displayedCount = ref(BATCH_SIZE)
 
 const calculatorName = computed(() => detail.value?.calculatorName || '还款明细')
 const results = computed(() => detail.value?.results || null)
 const schedule = computed(() => results.value?.schedule || [])
+const displayedSchedule = computed(() => schedule.value.slice(0, displayedCount.value))
+const hasMore = computed(() => displayedCount.value < schedule.value.length)
 const resultRenderer = computed(() => detail.value?.resultRenderer || '')
 const repaymentModeLabel = computed(() => {
   if (!results.value?.repaymentMode) return ''
@@ -40,6 +46,11 @@ const detailInterestLabel = computed(() => (
   resultRenderer.value === 'credit-card' ? '手续费' : '利息'
 ))
 
+function loadMore() {
+  if (!hasMore.value) return
+  displayedCount.value = Math.min(displayedCount.value + BATCH_SIZE, schedule.value.length)
+}
+
 function buildDetailFromSource(source) {
   if (!source?.calculatorId) return source || null
 
@@ -64,6 +75,7 @@ function buildDetailFromSource(source) {
 
 function applyDetail(nextDetail) {
   detail.value = buildDetailFromSource(nextDetail)
+  loading.value = false
   if (!detail.value?.results?.schedule?.length) {
     uni.showToast({ title: '未找到还款明细', icon: 'none' })
     setTimeout(() => {
@@ -127,65 +139,98 @@ async function exportSchedule() {
     exporting.value = false
   }
 }
+
+function goBack() {
+  uni.navigateBack()
+}
 </script>
 
 <template>
-  <view class="page-container schedule-page" v-if="results">
-    <view class="hero card">
-      <view class="hero-header">
-        <view>
-          <view class="hero-title">{{ calculatorName }}</view>
-          <text v-if="repaymentModeLabel" class="hero-subtitle">{{ repaymentModeLabel }}</text>
-        </view>
-        <view class="hero-badge">{{ results.months }}期</view>
-      </view>
-
-      <button class="export-button" :loading="exporting" @click="exportSchedule">
-        导出 XLSX
-      </button>
-
-      <view class="summary-grid">
-        <view class="summary-item">
-          <text class="summary-label">{{ paymentLabel }}</text>
-          <text class="summary-value">
-            {{ formatCurrency(results.firstMonthPayment ?? results.monthlyPayment) }}元
-          </text>
-        </view>
-
-        <view class="summary-item" v-if="middleSummaryLabel">
-          <text class="summary-label">{{ middleSummaryLabel }}</text>
-          <text class="summary-value">{{ formatCurrency(middleSummaryValue) }}元</text>
-        </view>
-
-        <view class="summary-item">
-          <text class="summary-label">{{ feeLabel }}</text>
-          <text class="summary-value">{{ formatCurrency(feeValue) }}元</text>
-        </view>
-
-        <view class="summary-item">
-          <text class="summary-label">还款总额</text>
-          <text class="summary-value">{{ formatCurrency(results.totalPayment) }}元</text>
-        </view>
-      </view>
+  <view class="page-container schedule-page">
+    <view v-if="loading" class="loading-state">
+      <text class="loading-text">加载中...</text>
     </view>
 
-    <view class="table-card card">
-      <view class="table-title">完整还款明细</view>
+    <view v-else-if="!results" class="empty-state">
+      <text class="empty-icon">📋</text>
+      <text class="empty-text">暂无还款明细数据</text>
+      <button class="empty-back-btn" @click="goBack">返回上一页</button>
+    </view>
 
-      <view class="table-head">
-        <text class="col-period">期数</text>
-        <text class="col-amount">{{ paymentLabel }}</text>
-        <text class="col-amount">本金</text>
-        <text class="col-amount">{{ detailInterestLabel }}</text>
-        <text class="col-balance">剩余本金</text>
+    <view v-else>
+      <view class="hero card">
+        <view class="hero-header">
+          <view>
+            <view class="hero-title">{{ calculatorName }}</view>
+            <text v-if="repaymentModeLabel" class="hero-subtitle">{{ repaymentModeLabel }}</text>
+          </view>
+          <view class="hero-badge">{{ results.months }}期</view>
+        </view>
+
+        <view class="hero-actions">
+          <button class="back-button" @click="goBack">修改参数</button>
+          <button class="export-button" :loading="exporting" @click="exportSchedule">
+            导出 XLSX
+          </button>
+        </view>
+
+        <view class="summary-grid">
+          <view class="summary-item">
+            <text class="summary-label">{{ paymentLabel }}</text>
+            <text class="summary-value">
+              {{ formatCurrency(results.firstMonthPayment ?? results.monthlyPayment) }}元
+            </text>
+          </view>
+
+          <view class="summary-item" v-if="middleSummaryLabel">
+            <text class="summary-label">{{ middleSummaryLabel }}</text>
+            <text class="summary-value">{{ formatCurrency(middleSummaryValue) }}元</text>
+          </view>
+
+          <view class="summary-item">
+            <text class="summary-label">{{ feeLabel }}</text>
+            <text class="summary-value">{{ formatCurrency(feeValue) }}元</text>
+          </view>
+
+          <view class="summary-item">
+            <text class="summary-label">还款总额</text>
+            <text class="summary-value">{{ formatCurrency(results.totalPayment) }}元</text>
+          </view>
+        </view>
       </view>
 
-      <view class="table-row" v-for="item in schedule" :key="item.period">
-        <text class="col-period">第{{ item.period }}期</text>
-        <text class="col-amount">{{ formatCurrency(item.payment) }}</text>
-        <text class="col-amount">{{ formatCurrency(item.principal) }}</text>
-        <text class="col-amount">{{ formatCurrency(item.interest) }}</text>
-        <text class="col-balance">{{ formatCurrency(item.remainingPrincipal) }}</text>
+      <view class="table-card card">
+        <view class="table-title">完整还款明细</view>
+
+        <scroll-view
+          class="table-scroll"
+          scroll-y
+          @scrolltolower="loadMore"
+        >
+          <view class="table-head">
+            <text class="col-period">期数</text>
+            <text class="col-amount">{{ paymentLabel }}</text>
+            <text class="col-amount">本金</text>
+            <text class="col-amount">{{ detailInterestLabel }}</text>
+            <text class="col-balance">剩余本金</text>
+          </view>
+
+          <view class="table-row" v-for="item in displayedSchedule" :key="item.period">
+            <text class="col-period">第{{ item.period }}期</text>
+            <text class="col-amount">{{ formatCurrency(item.payment) }}</text>
+            <text class="col-amount">{{ formatCurrency(item.principal) }}</text>
+            <text class="col-amount">{{ formatCurrency(item.interest) }}</text>
+            <text class="col-balance">{{ formatCurrency(item.remainingPrincipal) }}</text>
+          </view>
+
+          <view v-if="hasMore" class="load-more">
+            <text class="load-more-text">已显示 {{ displayedSchedule.length }} / {{ schedule.length }} 期，下拉加载更多</text>
+          </view>
+
+          <view v-else class="load-more">
+            <text class="load-more-text">共 {{ schedule.length }} 期，已全部显示</text>
+          </view>
+        </scroll-view>
       </view>
     </view>
   </view>
@@ -194,6 +239,53 @@ async function exportSchedule() {
 <style scoped>
 .schedule-page {
   padding-top: 24rpx;
+}
+
+.loading-state {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 200rpx 0;
+}
+
+.loading-text {
+  font-size: 28rpx;
+  color: #94A3B8;
+}
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 200rpx 0;
+}
+
+.empty-icon {
+  font-size: 80rpx;
+  margin-bottom: 24rpx;
+}
+
+.empty-text {
+  font-size: 28rpx;
+  color: #94A3B8;
+  margin-bottom: 40rpx;
+}
+
+.empty-back-btn {
+  width: 280rpx;
+  height: 76rpx;
+  line-height: 76rpx;
+  border-radius: 38rpx;
+  background: #6366F1;
+  color: #FFFFFF;
+  font-size: 26rpx;
+  font-weight: 600;
+  border: none;
+}
+
+.empty-back-btn::after {
+  border: none;
 }
 
 .hero {
@@ -230,8 +322,30 @@ async function exportSchedule() {
   color: #0F766E;
 }
 
-.export-button {
+.hero-actions {
+  display: flex;
+  gap: 18rpx;
   margin-bottom: 22rpx;
+}
+
+.back-button {
+  flex: 1;
+  height: 76rpx;
+  line-height: 76rpx;
+  border-radius: 38rpx;
+  background: rgba(15, 118, 110, 0.12);
+  color: #0F766E;
+  font-size: 26rpx;
+  font-weight: 600;
+  border: none;
+}
+
+.back-button::after {
+  border: none;
+}
+
+.export-button {
+  flex: 1;
   height: 76rpx;
   line-height: 76rpx;
   border-radius: 38rpx;
@@ -282,6 +396,10 @@ async function exportSchedule() {
   color: #334155;
 }
 
+.table-scroll {
+  max-height: 1200rpx;
+}
+
 .table-head,
 .table-row {
   display: flex;
@@ -293,6 +411,9 @@ async function exportSchedule() {
   background: #F8FAFC;
   border-top: 1rpx solid #E2E8F0;
   border-bottom: 1rpx solid #E2E8F0;
+  position: sticky;
+  top: 0;
+  z-index: 1;
 }
 
 .table-row {
@@ -323,5 +444,17 @@ async function exportSchedule() {
 .col-balance {
   width: 22%;
   text-align: right;
+}
+
+.load-more {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24rpx 0;
+}
+
+.load-more-text {
+  font-size: 22rpx;
+  color: #94A3B8;
 }
 </style>
